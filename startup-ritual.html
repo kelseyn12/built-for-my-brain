@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Built for My Brain — Daily Startup Ritual</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage: #4a7c59;
+  --sage-mid: #3d6b4a;
+  --sage-light: rgba(74,124,89,0.1);
+  --sage-border: rgba(74,124,89,0.25);
+  --teal: #3d7a72;
+  --teal-light: rgba(61,122,114,0.08);
+  --teal-border: rgba(61,122,114,0.22);
+  --amber: #8a6a3a;
+  --amber-light: rgba(138,106,58,0.1);
+  --amber-border: rgba(138,106,58,0.25);
+  --bg: #f4f2ee;
+  --bg-card: #ffffff;
+  --bg-soft: #eeecea;
+  --bg-softer: #e8e5e0;
+  --text: #2c3330;
+  --text-mid: #5a6b62;
+  --text-muted: #8a9e94;
+  --text-faint: #b8c5be;
+  --border: rgba(74,100,88,0.1);
+  --border-mid: rgba(74,100,88,0.18);
+  --shadow: 0 2px 8px rgba(44,51,48,0.07);
+  --shadow-sm: 0 1px 3px rgba(44,51,48,0.06);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 1.5rem 1.25rem 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 520px; margin: 0 auto; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-faint); text-decoration: none;
+  margin-bottom: 1.25rem; transition: color 0.15s;
+}
+.back-link:hover { color: var(--sage); }
+
+.brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--sage); margin-bottom: 6px; }
+h1 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; line-height: 1.15; color: var(--text); margin-bottom: 4px; }
+h1 em { font-style: italic; color: var(--sage); }
+.sub { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.5rem; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+.step { display: none; }
+.step.active { display: block; }
+
+/* PROGRESS */
+.progress-wrap { margin-bottom: 1.75rem; }
+.progress-bar-bg { height: 4px; background: var(--bg-softer); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+.progress-bar-fill { height: 100%; background: var(--sage); border-radius: 2px; transition: width 0.4s ease; }
+.progress-label { font-size: 11px; color: var(--text-faint); letter-spacing: 0.04em; }
+
+.save-notice { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-faint); margin-bottom: 1.25rem; font-style: italic; }
+.save-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+
+/* FIELDS */
+.field { margin-bottom: 1.25rem; }
+.field-label { font-size: 15px; font-weight: 500; color: var(--text); display: block; margin-bottom: 4px; }
+.field-hint { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 8px; line-height: 1.6; }
+
+input[type=text], textarea {
+  width: 100%; padding: 10px 13px; border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm); font-size: 14px; background: var(--bg-card);
+  color: var(--text); font-family: 'DM Sans', sans-serif; transition: border-color 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+input:focus, textarea:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-light); }
+input::placeholder, textarea::placeholder { color: var(--text-faint); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 7px 14px; border-radius: 99px; border: 1px solid var(--border-mid);
+  font-size: 13px; cursor: pointer; background: var(--bg-card); color: var(--text-mid);
+  transition: all 0.15s; user-select: none; font-family: 'DM Sans', sans-serif;
+  box-shadow: var(--shadow-sm);
+}
+.chip:hover { border-color: var(--sage-border); color: var(--text); }
+.chip.on { background: var(--sage-light); border-color: var(--sage-border); color: var(--sage); font-weight: 500; }
+
+/* RITUAL ITEM BUILDER */
+.ritual-item {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow-sm); margin-bottom: 6px;
+  cursor: grab; transition: box-shadow 0.15s;
+}
+.ritual-item:hover { box-shadow: var(--shadow); }
+.ritual-drag { color: var(--text-faint); font-size: 14px; cursor: grab; flex-shrink: 0; }
+.ritual-icon { font-size: 18px; flex-shrink: 0; }
+.ritual-info { flex: 1; }
+.ritual-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.ritual-duration { font-size: 11px; color: var(--text-faint); margin-top: 1px; }
+.ritual-remove {
+  width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border-mid);
+  background: var(--bg-soft); color: var(--text-faint); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+}
+.ritual-remove:hover { border-color: #e05555; color: #e05555; }
+
+.add-ritual-row { display: flex; gap: 6px; align-items: center; margin-top: 8px; }
+.add-ritual-row input { flex: 1; }
+.add-ritual-time { width: 72px; }
+.add-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: none;
+  background: var(--sage); color: #fff; cursor: pointer; font-size: 18px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.15s;
+}
+.add-btn:hover { background: var(--sage-mid); transform: scale(1.05); }
+
+/* BUTTONS */
+.btn {
+  width: 100%; padding: 13px; font-size: 15px; font-weight: 600; border-radius: var(--radius);
+  cursor: pointer; border: none; background: var(--sage); color: #fff; margin-top: 1.25rem;
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(74,124,89,0.2);
+}
+.btn:hover { background: var(--sage-mid); }
+.btn:active { transform: scale(0.98); }
+.btn-ghost {
+  background: var(--bg-card); color: var(--text-mid); border: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); }
+.btn-sm { padding: 9px 18px; font-size: 13px; width: auto; margin-top: 0; }
+.btn-row { display: flex; gap: 8px; margin-top: 1.25rem; }
+
+/* RITUAL RUN SCREEN */
+.ritual-header {
+  text-align: center; padding: 1rem 0 1.5rem;
+}
+.ritual-greeting { font-size: 14px; color: var(--text-muted); margin-bottom: 4px; }
+.ritual-date { font-size: 12px; color: var(--text-faint); }
+
+/* STEP CARD */
+.step-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem;
+  box-shadow: var(--shadow); text-align: center;
+  animation: fadeUp 0.3s ease;
+  margin-bottom: 1.25rem;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.step-number { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-faint); margin-bottom: 8px; }
+.step-icon-big { font-size: 48px; margin-bottom: 12px; display: block; animation: popIn 0.35s ease; }
+@keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.step-name-big { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text); margin-bottom: 8px; line-height: 1.2; }
+.step-duration-big { font-size: 14px; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+/* STEP TIMER */
+.step-timer-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 1.25rem; }
+.step-timer-svg { transform: rotate(-90deg); }
+.step-timer-track { fill: none; stroke: var(--bg-softer); stroke-width: 5; }
+.step-timer-fill { fill: none; stroke: var(--sage); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.step-timer-text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center;
+}
+.step-timer-display { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text); line-height: 1; }
+.step-timer-label { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+
+.step-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.step-btn {
+  padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: var(--radius-sm);
+  cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.step-btn-primary { background: var(--sage); color: #fff; box-shadow: 0 2px 6px rgba(74,124,89,0.2); }
+.step-btn-primary:hover { background: var(--sage-mid); }
+.step-btn-ghost { background: var(--bg-soft); color: var(--text-mid); border: 1px solid var(--border-mid); }
+.step-btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); }
+.step-btn-skip { background: none; border: none; color: var(--text-faint); font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: underline; text-underline-offset: 2px; margin-top: 8px; display: block; width: 100%; text-align: center; }
+.step-btn-skip:hover { color: var(--text-muted); }
+
+/* PROGRESS DOTS */
+.progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 1.25rem; }
+.progress-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bg-softer); transition: all 0.3s; }
+.progress-dot.done { background: var(--sage); }
+.progress-dot.current { background: var(--sage); width: 18px; border-radius: 4px; }
+
+/* REMAINING LIST */
+.remaining-list { margin-top: 1rem; }
+.remaining-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint); margin-bottom: 8px; }
+.remaining-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  background: var(--bg-soft); margin-bottom: 4px; font-size: 13px; color: var(--text-mid);
+}
+.remaining-icon { font-size: 14px; }
+.remaining-time { font-size: 11px; color: var(--text-faint); margin-left: auto; }
+
+/* COMPLETE */
+.complete-card {
+  background: var(--bg-card); border: 1px solid var(--sage-border);
+  border-radius: var(--radius); padding: 2rem 1.5rem;
+  text-align: center; box-shadow: var(--shadow); animation: fadeUp 0.3s ease;
+}
+.complete-icon-big { font-size: 56px; margin-bottom: 1rem; display: block; animation: popIn 0.4s ease; }
+.complete-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--sage); margin-bottom: 8px; }
+.complete-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem; }
+.complete-time { font-size: 13px; color: var(--text-faint); margin-bottom: 1.5rem; }
+.complete-streak {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--amber-light); border: 1px solid var(--amber-border);
+  border-radius: 99px; padding: 6px 14px; font-size: 13px;
+  color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;
+}
+
+/* WHAT'S FIRST BOX */
+.whats-first {
+  background: var(--sage-light); border: 1px solid var(--sage-border);
+  border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 1rem;
+}
+.whats-first-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage); margin-bottom: 4px; display: block; }
+.whats-first-task { font-size: 15px; font-weight: 500; color: var(--sage-mid); }
+.whats-first-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+.footer { font-size: 11px; color: var(--text-faint); margin-top: 2rem; line-height: 1.65; }
+.footer a { color: var(--sage); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="./index.html" class="back-link">← built for my brain</a>
+
+<!-- ══════════════════════════════════ -->
+<!--  SETUP SCREEN                     -->
+<!-- ══════════════════════════════════ -->
+<div class="screen active" id="screen-setup">
+  <div class="brand">Built for My Brain</div>
+  <h1>daily startup<br><em>ritual</em></h1>
+  <p class="sub">build your morning sequence once. every day it walks you through it step by step — before the scroll starts, before the overwhelm kicks in.</p>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="setup-bar" style="width:33%"></div></div>
+    <span class="progress-label" id="setup-label">step 1 of 3</span>
+  </div>
+
+  <div class="save-notice"><div class="save-dot"></div> saving as you go</div>
+
+  <!-- STEP 1: Name + work focus -->
+  <div class="step active" id="setup-1">
+    <div class="field">
+      <span class="field-label">what's your name?</span>
+      <input type="text" id="p-name" placeholder="first name" oninput="autosave()" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">what's your most important work focus right now?</span>
+      <span class="field-hint">this becomes "the one thing" shown at the end of your ritual — your anchor for the day. be specific.</span>
+      <input type="text" id="p-focus" placeholder="e.g. send 25 brand pitches, edit BWCA footage, finish client site" oninput="autosave()" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">what time do you want to start work?</span>
+      <span class="field-hint">the ritual builds backward from this time so you know when to begin each step.</span>
+      <div class="chips" id="time-chips">
+        <div class="chip" data-val="7:00 AM" onclick="pickChip(this,'time')">7 AM</div>
+        <div class="chip" data-val="8:00 AM" onclick="pickChip(this,'time')">8 AM</div>
+        <div class="chip" data-val="9:00 AM" onclick="pickChip(this,'time')">9 AM</div>
+        <div class="chip" data-val="10:00 AM" onclick="pickChip(this,'time')">10 AM</div>
+        <div class="chip" data-val="11:00 AM" onclick="pickChip(this,'time')">11 AM</div>
+        <div class="chip" data-val="varies" onclick="pickChip(this,'time')">it varies</div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="setupNext(2)">next →</button>
+  </div>
+
+  <!-- STEP 2: Build ritual -->
+  <div class="step" id="setup-2">
+    <div class="field">
+      <span class="field-label">build your morning ritual</span>
+      <span class="field-hint">tap the quick-add buttons below to build your sequence. add them in order from least stimulating to most — start with water or stretching, end with something you enjoy. this is called a stepped dopamine path and it actually works for ADHD brains.</span>
+      <span style="font-size:11px;color:var(--sage);display:block;margin-top:4px;font-style:italic;">💡 only add things you already do — not things you wish you did. 3–6 steps is ideal.</span>
+    </div>
+
+    <!-- PRESET SUGGESTIONS -->
+    <div style="margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">quick add:</div>
+      <div class="chips" id="preset-chips">
+        <div class="chip" onclick="addPreset('☀️','wake up + stretch',5)">☀️ stretch</div>
+        <div class="chip" onclick="addPreset('🐾','walk with pet',20)">🐾 dog walk</div>
+        <div class="chip" onclick="addPreset('☕','make coffee',5)">☕ coffee</div>
+        <div class="chip" onclick="addPreset('🧘','yoga or meditation',15)">🧘 yoga</div>
+        <div class="chip" onclick="addPreset('💧','drink water',2)">💧 water</div>
+        <div class="chip" onclick="addPreset('📓','journal or tanka',10)">📓 journal</div>
+        <div class="chip" onclick="addPreset('🚿','shower',10)">🚿 shower</div>
+        <div class="chip" onclick="addPreset('🥣','breakfast',15)">🥣 breakfast</div>
+        <div class="chip" onclick="addPreset('🌅','sit outside',5)">🌅 outside</div>
+      </div>
+    </div>
+
+    <div id="ritual-list" style="margin-bottom:8px;"></div>
+
+    <div class="add-ritual-row">
+      <input type="text" id="new-ritual-name" placeholder="add your own step..." />
+      <input type="text" id="new-ritual-time" class="add-ritual-time" placeholder="min" />
+      <button class="add-btn" onclick="addCustomRitual()">+</button>
+    </div>
+
+    <button class="btn" onclick="setupNext(3)" style="margin-top:1.25rem;">next →</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="setupNext(1)">← back</button>
+  </div>
+
+  <!-- STEP 3: Affirmation + phone rule -->
+  <div class="step" id="setup-3">
+    <div class="field">
+      <span class="field-label">what's one thing you want to remind yourself every morning?</span>
+      <span class="field-hint">shown at the start of your ritual. keep it short and true.</span>
+      <input type="text" id="p-affirmation" placeholder="e.g. one thing done beats ten things started. I belong here." oninput="autosave()" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">when do you allow yourself to check your phone?</span>
+      <span class="field-hint">this becomes a rule shown during your ritual to protect the morning.</span>
+      <div class="chips">
+        <div class="chip" data-val="after the ritual is complete" onclick="pickChip(this,'phone')">after the ritual</div>
+        <div class="chip" data-val="after my first work task is done" onclick="pickChip(this,'phone')">after first task</div>
+        <div class="chip" data-val="after breakfast" onclick="pickChip(this,'phone')">after breakfast</div>
+        <div class="chip" data-val="whenever I want" onclick="pickChip(this,'phone')">no rule</div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="saveSetup()">start my ritual ✦</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="setupNext(2)">← back</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  RITUAL RUN SCREEN                -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-ritual">
+  <div class="ritual-header">
+    <div class="ritual-greeting" id="ritual-greeting"></div>
+    <div class="ritual-date" id="ritual-date"></div>
+  </div>
+
+  <!-- PHONE RULE BANNER -->
+  <div id="phone-banner" style="display:none;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:1.25rem;font-size:13px;color:var(--amber);text-align:center;"></div>
+
+  <!-- AFFIRMATION — stays visible throughout -->
+  <div id="affirmation-card" style="display:none;background:var(--sage-light);border:1px solid var(--sage-border);border-radius:var(--radius-sm);padding:10px 16px;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;">
+    <span style="font-size:18px;flex-shrink:0;">🌿</span>
+    <div id="affirmation-text" style="font-family:DM Serif Display,serif;font-size:15px;font-style:italic;color:var(--sage-mid);line-height:1.4;"></div>
+  </div>
+
+  <!-- PROGRESS DOTS -->
+  <div class="progress-dots" id="progress-dots"></div>
+
+  <!-- CURRENT STEP CARD -->
+  <div class="step-card" id="step-card">
+    <div class="step-number" id="step-number"></div>
+    <span class="step-icon-big" id="step-icon"></span>
+    <div class="step-name-big" id="step-name"></div>
+    <div class="step-duration-big" id="step-duration"></div>
+
+    <div class="step-timer-wrap">
+      <svg class="step-timer-svg" width="120" height="120" viewBox="0 0 120 120">
+        <circle class="step-timer-track" cx="60" cy="60" r="50"/>
+        <circle class="step-timer-fill" id="step-timer-arc" cx="60" cy="60" r="50"
+          stroke-dasharray="314" stroke-dashoffset="0"/>
+      </svg>
+      <div class="step-timer-text">
+        <div class="step-timer-display" id="step-timer-display">--:--</div>
+        <div class="step-timer-label" id="step-timer-label">tap start</div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="step-btn step-btn-ghost" id="step-toggle" onclick="toggleStepTimer()">start timer</button>
+      <button class="step-btn step-btn-primary" onclick="completeStep()">done ✓</button>
+    </div>
+    <button class="step-btn-skip" onclick="skipStep()">skip this step</button>
+  </div>
+
+  <!-- REMAINING STEPS -->
+  <div class="remaining-list" id="remaining-list"></div>
+
+  <!-- EDIT LINK + DONE FOR TODAY -->
+  <div style="text-align:center;margin-top:1rem;display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <button onclick="markDoneForToday()" style="font-size:13px;color:var(--sage);background:var(--sage-light);border:1px solid var(--sage-border);border-radius:99px;padding:8px 18px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:500;">done for today — count my streak ✓</button>
+    <span style="font-size:12px;color:var(--text-faint);cursor:pointer;text-decoration:underline;text-underline-offset:2px;" onclick="showSetupFromRitual()">edit my ritual</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  COMPLETE SCREEN                  -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-complete">
+  <div class="complete-card">
+    <span class="complete-icon-big">🌅</span>
+    <div class="complete-title">ritual complete.</div>
+    <p class="complete-sub" id="complete-sub"></p>
+    <div class="complete-time" id="complete-time"></div>
+    <div class="complete-streak" id="complete-streak"></div>
+
+    <div class="whats-first" id="whats-first">
+      <span class="whats-first-label">your one thing today</span>
+      <div class="whats-first-task" id="whats-first-task"></div>
+      <div class="whats-first-sub">start here. nothing else until this is done.</div>
+    </div>
+
+    <!-- TOMORROW PREP -->
+    <div style="background:var(--amber-light);border:1px solid var(--amber-border);border-radius:var(--radius-sm);padding:12px 14px;margin-top:1rem;text-align:left;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--amber);margin-bottom:6px;">tonight — set tomorrow up</div>
+      <div style="font-size:12px;color:var(--text-mid);line-height:1.7;">
+        ☐ lay out your clothes<br>
+        ☐ fill your water bottle<br>
+        ☐ put your phone across the room<br>
+        ☐ write down tomorrow's one thing
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:1.25rem;justify-content:center;flex-direction:column;gap:8px;">
+      <a href="./dopamine-menu.html" class="step-btn step-btn-primary" style="text-decoration:none;font-size:14px;padding:12px 24px;display:inline-block;text-align:center;">start my day →</a>
+      <button class="step-btn step-btn-ghost" onclick="startRitual()" style="font-size:12px;padding:8px 16px;">run ritual again</button>
+    </div>
+  </div>
+
+  <p class="footer" style="margin-top:1.5rem;">
+    Built for My Brain — free tools for ADHD creatives.<br>
+    made by <a href="https://kelseynocek.com">Kelsey Nocek</a> ·
+    <span style="cursor:pointer;color:var(--sage);text-decoration:underline;text-underline-offset:2px;" onclick="showSetupFromRitual()">edit ritual</span><br>
+    <span style="color:var(--text-faint);">your ritual is saved in this browser. use the same browser and device to keep it.</span>
+  </p>
+</div>
+
+</div>
+<script>
+// Guard — available immediately so oninput handlers don't error
+function autosave() {
+  if (typeof setupSteps === 'undefined') return;
+  try {
+    const draft = {
+      name: document.getElementById('p-name')?.value || '',
+      focus: document.getElementById('p-focus')?.value || '',
+      affirmation: document.getElementById('p-affirmation')?.value || '',
+      steps: setupSteps,
+      time: selectedTime,
+      phone: selectedPhone,
+    };
+    localStorage.setItem('bfmb_ritual_draft', JSON.stringify(draft));
+  } catch(e) {}
+}
+
+const RITUAL_KEY = 'bfmb_ritual_v1';
+const STATS_KEY = 'bfmb_ritual_stats_v1';
+const CIRCUMFERENCE = 2 * Math.PI * 50; // ~314
+
+let ritual = null;
+let stats = { streak: 0, lastDate: null, total: 0 };
+let currentStepIdx = 0;
+let stepTimerInterval = null;
+let stepTimerSeconds = 0;
+let stepTimerTotal = 0;
+let stepTimerRunning = false;
+let ritualStartTime = null;
+
+const GREETINGS = ['good morning', 'morning', 'hey', 'rise and shine', 'good morning'];
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  checkDayReset();
+  if (ritual && ritual.steps && ritual.steps.length > 0) {
+    startRitual();
+  } else {
+    show('screen-setup');
+    restoreDraft();
+  }
+});
+
+function loadData() {
+  try {
+    const r = localStorage.getItem(RITUAL_KEY);
+    if (r) ritual = JSON.parse(r);
+    const s = localStorage.getItem(STATS_KEY);
+    if (s) stats = JSON.parse(s);
+  } catch(e) {}
+}
+
+function checkDayReset() {
+  const today = new Date().toDateString();
+  if (stats.lastDate && stats.lastDate !== today) {
+    const last = new Date(stats.lastDate);
+    const now = new Date();
+    const diff = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+    if (diff > 1) stats.streak = 0;
+  }
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── SETUP ──────────────────────────────────────────────────────────────────────
+let setupSteps = [];
+let selectedTime = null;
+let selectedPhone = null;
+
+function setupUpdateProgress(step) {
+  const pcts = { 1: 33, 2: 66, 3: 95 };
+  document.getElementById('setup-bar').style.width = pcts[step] + '%';
+  document.getElementById('setup-label').textContent = `step ${step} of 3`;
+}
+
+function setupNext(n) {
+  if (n === 2) {
+    if (!document.getElementById('p-name').value.trim()) { alert('add your name'); return; }
+  }
+  if (n === 3 && setupSteps.length === 0) { alert('add at least one ritual step'); return; }
+  document.querySelectorAll('#screen-setup .step').forEach(s => s.classList.remove('active'));
+  document.getElementById('setup-' + n).classList.add('active');
+  setupUpdateProgress(n);
+  window.scrollTo(0, 0);
+}
+
+function pickChip(el, group) {
+  document.querySelectorAll(`[data-val][onclick*="${group}"]`).forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  if (group === 'time') selectedTime = el.dataset.val;
+  if (group === 'phone') selectedPhone = el.dataset.val;
+  autosave();
+}
+
+function renderRitualList() {
+  const list = document.getElementById('ritual-list');
+  list.innerHTML = '';
+  setupSteps.forEach((step, i) => {
+    const item = document.createElement('div');
+    item.className = 'ritual-item';
+    item.innerHTML = `
+      <span class="ritual-drag">⠿</span>
+      <span class="ritual-icon">${step.icon}</span>
+      <div class="ritual-info">
+        <div class="ritual-name">${step.name}</div>
+        <div class="ritual-duration">${step.minutes} min</div>
+      </div>
+      <button class="ritual-remove" onclick="removeStep(${i})">×</button>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function addPreset(icon, name, minutes) {
+  setupSteps.push({ icon, name, minutes });
+  renderRitualList();
+  autosave();
+}
+
+function addCustomRitual() {
+  const name = document.getElementById('new-ritual-name').value.trim();
+  const mins = parseInt(document.getElementById('new-ritual-time').value) || 5;
+  if (!name) return;
+  setupSteps.push({ icon: '✨', name, minutes: mins });
+  document.getElementById('new-ritual-name').value = '';
+  document.getElementById('new-ritual-time').value = '';
+  renderRitualList();
+  autosave();
+}
+
+function removeStep(i) {
+  setupSteps.splice(i, 1);
+  renderRitualList();
+  autosave();
+}
+
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem('bfmb_ritual_draft');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.name) document.getElementById('p-name').value = d.name;
+    if (d.focus) document.getElementById('p-focus').value = d.focus;
+    if (d.affirmation) document.getElementById('p-affirmation').value = d.affirmation;
+    if (d.steps) { setupSteps = d.steps; renderRitualList(); }
+    if (d.time) {
+      selectedTime = d.time;
+      const el = document.querySelector(`[data-val="${d.time}"]`);
+      if (el) el.classList.add('on');
+    }
+    if (d.phone) {
+      selectedPhone = d.phone;
+      const el = document.querySelector(`[data-val="${d.phone}"]`);
+      if (el) el.classList.add('on');
+    }
+  } catch(e) {}
+}
+
+function saveSetup() {
+  const name = document.getElementById('p-name').value.trim();
+  if (!name) { alert('add your name'); return; }
+  if (setupSteps.length === 0) { alert('add at least one step to your ritual'); return; }
+
+  ritual = {
+    name,
+    focus: document.getElementById('p-focus').value.trim(),
+    affirmation: document.getElementById('p-affirmation').value.trim(),
+    startTime: selectedTime || 'whenever you\'re ready',
+    phoneRule: selectedPhone || 'after the ritual is complete',
+    steps: setupSteps,
+  };
+  try {
+    localStorage.setItem(RITUAL_KEY, JSON.stringify(ritual));
+    localStorage.removeItem('bfmb_ritual_draft');
+  } catch(e) {}
+  startRitual();
+}
+
+// ── RITUAL RUN ────────────────────────────────────────────────────────────────
+function startRitual() {
+  if (!ritual) { show('screen-setup'); return; }
+
+  currentStepIdx = 0;
+  ritualStartTime = Date.now();
+  if (stepTimerInterval) { clearInterval(stepTimerInterval); stepTimerInterval = null; }
+  stepTimerRunning = false;
+
+  // Greeting
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'good morning' : hour < 17 ? 'good afternoon' : 'good evening';
+  document.getElementById('ritual-greeting').textContent = greet + ', ' + ritual.name + '.';
+  document.getElementById('ritual-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  // Phone rule
+  const banner = document.getElementById('phone-banner');
+  if (ritual.phoneRule && ritual.phoneRule !== 'whenever I want') {
+    banner.textContent = '📵 phone: ' + ritual.phoneRule;
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Affirmation — stays visible throughout
+  const affCard = document.getElementById('affirmation-card');
+  if (ritual.affirmation) {
+    document.getElementById('affirmation-text').textContent = ritual.affirmation;
+    affCard.style.display = 'flex';
+  } else {
+    affCard.style.display = 'none';
+  }
+
+  show('screen-ritual');
+  renderCurrentStep();
+}
+
+function renderCurrentStep() {
+  if (currentStepIdx >= ritual.steps.length) {
+    finishRitual();
+    return;
+  }
+
+  const step = ritual.steps[currentStepIdx];
+  if (stepTimerInterval) { clearInterval(stepTimerInterval); stepTimerInterval = null; }
+  stepTimerRunning = false;
+
+  // Progress dots
+  const dots = document.getElementById('progress-dots');
+  dots.innerHTML = '';
+  ritual.steps.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i < currentStepIdx ? ' done' : i === currentStepIdx ? ' current' : '');
+    dots.appendChild(dot);
+  });
+
+  // Step card
+  document.getElementById('step-number').textContent = 'step ' + (currentStepIdx + 1) + ' of ' + ritual.steps.length;
+  document.getElementById('step-icon').textContent = step.icon;
+  document.getElementById('step-name').textContent = step.name;
+  document.getElementById('step-duration').textContent = step.minutes + ' minutes';
+  document.getElementById('step-toggle').textContent = 'start timer';
+  document.getElementById('step-timer-label').textContent = step.minutes + ' min';
+
+  stepTimerTotal = step.minutes * 60;
+  stepTimerSeconds = stepTimerTotal;
+  updateStepTimer();
+
+  // Remaining steps
+  const remaining = document.getElementById('remaining-list');
+  const upcoming = ritual.steps.slice(currentStepIdx + 1);
+  if (upcoming.length > 0) {
+    remaining.innerHTML = `<div class="remaining-title">up next</div>` +
+      upcoming.map(s => `
+        <div class="remaining-item">
+          <span class="remaining-icon">${s.icon}</span>
+          ${s.name}
+          <span class="remaining-time">${s.minutes}m</span>
+        </div>
+      `).join('');
+  } else {
+    remaining.innerHTML = '';
+  }
+}
+
+function toggleStepTimer() {
+  if (stepTimerRunning) {
+    clearInterval(stepTimerInterval);
+    stepTimerRunning = false;
+    document.getElementById('step-toggle').textContent = 'resume';
+    document.getElementById('step-timer-label').textContent = 'paused';
+  } else {
+    stepTimerRunning = true;
+    document.getElementById('step-toggle').textContent = 'pause';
+    stepTimerInterval = setInterval(() => {
+      stepTimerSeconds--;
+      updateStepTimer();
+      if (stepTimerSeconds <= 0) {
+        clearInterval(stepTimerInterval);
+        stepTimerRunning = false;
+        document.getElementById('step-timer-label').textContent = "time's up!";
+        document.getElementById('step-toggle').textContent = 'done?';
+      }
+    }, 1000);
+  }
+}
+
+function updateStepTimer() {
+  const m = Math.floor(stepTimerSeconds / 60);
+  const s = stepTimerSeconds % 60;
+  document.getElementById('step-timer-display').textContent = m + ':' + String(s).padStart(2, '0');
+  const arc = document.getElementById('step-timer-arc');
+  const pct = stepTimerSeconds / stepTimerTotal;
+  arc.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
+}
+
+function completeStep() {
+  if (stepTimerInterval) { clearInterval(stepTimerInterval); stepTimerInterval = null; }
+  stepTimerRunning = false;
+  currentStepIdx++;
+  renderCurrentStep();
+}
+
+function skipStep() {
+  if (stepTimerInterval) { clearInterval(stepTimerInterval); stepTimerInterval = null; }
+  stepTimerRunning = false;
+  currentStepIdx++;
+  renderCurrentStep();
+}
+
+function finishRitual() {
+  if (stepTimerInterval) { clearInterval(stepTimerInterval); stepTimerInterval = null; }
+
+  const elapsed = Math.round((Date.now() - ritualStartTime) / 60000);
+  const today = new Date().toDateString();
+
+  if (stats.lastDate !== today) {
+    stats.streak++;
+    stats.total++;
+    stats.lastDate = today;
+    try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch(e) {}
+  }
+
+  const msgs = [
+    'morning locked in. the day is yours.',
+    'ritual done. you started before the scroll started. that matters.',
+    'you showed up for yourself this morning.',
+    'the hardest part of the day is over — you began.',
+  ];
+  document.getElementById('complete-sub').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+  document.getElementById('complete-time').textContent = `${elapsed} minutes from start to finish`;
+  document.getElementById('complete-streak').innerHTML = `🔥 ${stats.streak} day streak`;
+
+  if (ritual.focus) {
+    document.getElementById('whats-first-task').textContent = ritual.focus;
+    document.getElementById('whats-first').style.display = 'block';
+  } else {
+    document.getElementById('whats-first').style.display = 'none';
+  }
+
+  show('screen-complete');
+}
+
+function markDoneForToday() {
+  if (stepTimerInterval) { clearInterval(stepTimerInterval); stepTimerInterval = null; }
+  stepTimerRunning = false;
+  const today = new Date().toDateString();
+  if (stats.lastDate !== today) {
+    stats.streak++;
+    stats.total++;
+    stats.lastDate = today;
+    try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch(e) {}
+  }
+  ritualStartTime = ritualStartTime || Date.now();
+  finishRitual();
+}
+
+function showSetupFromRitual() {
+  if (ritual) {
+    setupSteps = ritual.steps ? [...ritual.steps] : [];
+    selectedTime = ritual.startTime;
+    selectedPhone = ritual.phoneRule;
+    setTimeout(() => {
+      if (document.getElementById('p-name')) document.getElementById('p-name').value = ritual.name || '';
+      if (document.getElementById('p-focus')) document.getElementById('p-focus').value = ritual.focus || '';
+      if (document.getElementById('p-affirmation')) document.getElementById('p-affirmation').value = ritual.affirmation || '';
+      renderRitualList();
+    }, 50);
+  }
+  show('screen-setup');
+  document.querySelectorAll('#screen-setup .step').forEach(s => s.classList.remove('active'));
+  document.getElementById('setup-1').classList.add('active');
+  setupUpdateProgress(1);
+}
+</script>
+</body>
+</html>

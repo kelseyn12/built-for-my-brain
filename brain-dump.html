@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Built for My Brain — Brain Dump → Script</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage: #4a7c59;
+  --sage-mid: #3d6b4a;
+  --sage-light: rgba(74,124,89,0.1);
+  --sage-border: rgba(74,124,89,0.25);
+  --teal: #3d7a72;
+  --teal-light: rgba(61,122,114,0.08);
+  --teal-border: rgba(61,122,114,0.22);
+  --slate: #4a6b8a;
+  --slate-light: rgba(74,107,138,0.1);
+  --slate-border: rgba(74,107,138,0.25);
+  --amber: #8a6a3a;
+  --amber-light: rgba(138,106,58,0.1);
+  --amber-border: rgba(138,106,58,0.25);
+  --bg: #f4f2ee;
+  --bg-card: #ffffff;
+  --bg-soft: #eeecea;
+  --bg-softer: #e8e5e0;
+  --text: #2c3330;
+  --text-mid: #5a6b62;
+  --text-muted: #8a9e94;
+  --text-faint: #b8c5be;
+  --border: rgba(74,100,88,0.1);
+  --border-mid: rgba(74,100,88,0.18);
+  --shadow: 0 2px 8px rgba(44,51,48,0.07);
+  --shadow-sm: 0 1px 3px rgba(44,51,48,0.06);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 1.5rem 1.25rem 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 560px; margin: 0 auto; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-faint); text-decoration: none;
+  margin-bottom: 1.25rem; transition: color 0.15s;
+}
+.back-link:hover { color: var(--sage); }
+
+.brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--sage); margin-bottom: 6px; }
+h1 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; line-height: 1.15; color: var(--text); margin-bottom: 4px; }
+h1 em { font-style: italic; color: var(--sage); }
+.sub { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.5rem; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* FIELDS */
+.field { margin-bottom: 1.25rem; }
+.field-label { font-size: 15px; font-weight: 500; color: var(--text); display: block; margin-bottom: 4px; }
+.field-hint { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 8px; line-height: 1.6; }
+
+input[type=text], input[type=password], textarea {
+  width: 100%; padding: 10px 13px; border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm); font-size: 14px; background: var(--bg-card);
+  color: var(--text); font-family: 'DM Sans', sans-serif; transition: border-color 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+input:focus, textarea:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-light); }
+input::placeholder, textarea::placeholder { color: var(--text-faint); }
+
+.brain-dump-area {
+  width: 100%; min-height: 180px; padding: 14px 16px;
+  border: 1px solid var(--border-mid); border-radius: var(--radius);
+  font-size: 15px; background: var(--bg-card); color: var(--text);
+  font-family: 'DM Sans', sans-serif; line-height: 1.7; resize: vertical;
+  transition: border-color 0.2s; box-shadow: var(--shadow-sm);
+}
+.brain-dump-area:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-light); }
+.brain-dump-area::placeholder { color: var(--text-faint); font-style: italic; }
+
+/* SCRIPT TYPE CHIPS */
+.type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.type-card {
+  padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-mid);
+  cursor: pointer; background: var(--bg-card); transition: all 0.15s; box-shadow: var(--shadow-sm);
+}
+.type-card:hover { border-color: var(--sage-border); }
+.type-card.on { background: var(--sage-light); border-color: var(--sage-border); }
+.type-card-icon { font-size: 18px; margin-bottom: 4px; display: block; }
+.type-card-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.type-card.on .type-card-name { color: var(--sage); }
+.type-card-desc { font-size: 11px; color: var(--text-faint); line-height: 1.3; }
+
+/* SUGGESTED TYPE BANNER */
+.suggested-banner {
+  background: var(--sage-light); border: 1px solid var(--sage-border);
+  border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 1rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.suggested-text { font-size: 13px; color: var(--sage-mid); line-height: 1.5; flex: 1; }
+.suggested-text strong { font-weight: 600; color: var(--sage); }
+.suggested-change { font-size: 12px; color: var(--text-muted); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; flex-shrink: 0; }
+.suggested-change:hover { color: var(--sage); }
+
+/* BUTTONS */
+.btn {
+  width: 100%; padding: 13px; font-size: 15px; font-weight: 600; border-radius: var(--radius);
+  cursor: pointer; border: none; background: var(--sage); color: #fff; margin-top: 1.25rem;
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(74,124,89,0.2);
+}
+.btn:hover { background: var(--sage-mid); }
+.btn:active { transform: scale(0.98); }
+.btn-ghost {
+  background: var(--bg-card); color: var(--text-mid); border: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); }
+.btn-sm { padding: 8px 16px; font-size: 13px; width: auto; margin-top: 0; }
+.btn-row { display: flex; gap: 8px; margin-top: 1.25rem; flex-wrap: wrap; }
+
+/* LOADING */
+.loading-wrap { text-align: center; padding: 3rem 1rem; }
+.spinner {
+  width: 36px; height: 36px; border: 2px solid var(--border-mid); border-top-color: var(--sage);
+  border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 1.25rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+/* RESULT */
+.result-type-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--sage-light); border: 1px solid var(--sage-border);
+  border-radius: 99px; padding: 5px 12px; font-size: 12px; color: var(--sage);
+  font-weight: 600; margin-bottom: 1.25rem;
+}
+
+.result-section {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow); margin-bottom: 12px;
+  animation: fadeUp 0.3s ease both;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.result-section-header {
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.result-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+.copy-btn {
+  font-size: 11px; color: var(--sage); background: var(--sage-light); border: 1px solid var(--sage-border);
+  border-radius: 99px; padding: 3px 10px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; font-weight: 500;
+}
+.copy-btn:hover { background: var(--sage); color: #fff; }
+
+.result-section-body { padding: 14px 16px; }
+.result-text { font-size: 14px; color: var(--text); line-height: 1.75; white-space: pre-wrap; }
+.result-text.script { font-size: 15px; line-height: 1.8; }
+
+/* HOOK VARIATIONS */
+.hook-item {
+  padding: 12px 14px; border-radius: var(--radius-sm); background: var(--bg-soft);
+  margin-bottom: 8px; border: 1px solid var(--border); position: relative;
+}
+.hook-item:last-child { margin-bottom: 0; }
+.hook-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); margin-bottom: 4px; display: block; }
+.hook-text { font-size: 14px; color: var(--text); line-height: 1.5; font-style: italic; }
+.hook-copy {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 11px; color: var(--text-faint); background: var(--bg-card);
+  border: 1px solid var(--border-mid); border-radius: 99px; padding: 2px 8px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.hook-copy:hover { color: var(--sage); border-color: var(--sage-border); }
+
+/* FILMING NOTES */
+.filming-note {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.filming-note:last-child { border-bottom: none; padding-bottom: 0; }
+.filming-note-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.filming-note-text { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+
+/* DISCLAIMER */
+.disclaimer {
+  font-size: 11px; color: var(--text-faint); font-style: italic;
+  padding: 8px 0; line-height: 1.6;
+}
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+/* PROFILE BADGE */
+.profile-badge {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg-soft); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 1.25rem;
+  font-size: 12px; color: var(--text-muted);
+}
+.profile-edit { font-size: 12px; color: var(--sage); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+.footer { font-size: 11px; color: var(--text-faint); margin-top: 2rem; line-height: 1.65; }
+.footer a { color: var(--sage); text-decoration: none; }
+
+/* TYPE SELECTOR MODAL */
+.type-overlay {
+  position: fixed; inset: 0; background: rgba(44,51,48,0.4);
+  backdrop-filter: blur(4px); z-index: 100;
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.type-modal {
+  background: var(--bg-card); border-radius: var(--radius) var(--radius) 0 0;
+  padding: 1.5rem 1.25rem 2.5rem; width: 100%; max-width: 560px;
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.type-modal-handle { width: 36px; height: 4px; background: var(--bg-softer); border-radius: 2px; margin: 0 auto 1.25rem; }
+.type-modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text); margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="./index.html" class="back-link">← built for my brain</a>
+
+<!-- ══════════════════════════════════ -->
+<!--  API KEY SCREEN                   -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-apikey">
+  <div class="brand">Built for My Brain</div>
+  <h1>one quick<br><em>setup</em></h1>
+  <p class="sub">this tool uses AI to turn your brain dump into a real script. you need a free Anthropic API key — takes 2 minutes.</p>
+
+  <div style="background:var(--bg-soft);border:1px solid var(--border-mid);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;">how to get your free API key:</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">go to <a href="https://console.anthropic.com" target="_blank" style="color:var(--sage);font-weight:500;">console.anthropic.com</a> and create a free account</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">add $5 credit — lasts months at this usage level</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">go to API Keys → Create Key → paste it below</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="field-label">paste your API key here</span>
+    <span class="field-hint">stays in your browser only — never shared except directly to Anthropic.</span>
+    <input type="password" id="api-key-input" placeholder="sk-ant-..." style="font-family:monospace;font-size:13px;" />
+    <span id="api-key-error" style="display:none;font-size:12px;color:#c0392b;margin-top:6px;display:none;">that doesn't look right — Anthropic keys start with sk-ant-</span>
+  </div>
+  <button class="btn" onclick="saveApiKey()">save and continue →</button>
+  <p style="font-size:11px;color:var(--text-faint);margin-top:1rem;line-height:1.6;text-align:center;">each script generation costs less than $0.01.</p>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  DUMP SCREEN                      -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-dump">
+  <div class="brand">Built for My Brain</div>
+  <h1>brain dump<br><em>→ script</em></h1>
+  <p class="sub">dump everything in your head. messy is fine. Claude will figure out the structure.</p>
+
+  <div class="profile-badge" id="profile-badge" style="display:none;">
+    <span id="profile-context-text">no profile context</span>
+    <span class="profile-edit" onclick="editContext()">edit context</span>
+  </div>
+
+  <div class="field">
+    <span class="field-label">what's in your head?</span>
+    <span class="field-hint">don't clean it up. don't organize it. just write everything — the product, the idea, what you want to say, who it's for, why you care about it. the messier the better.</span>
+    <textarea class="brain-dump-area" id="dump-text"
+      placeholder="e.g. ok so I want to make a video about this tent I used at the BWCA... Big Agnes... it was SO warm I couldn't believe it... I was worried it would be too cold but I slept great... the setup was really easy too... I want to talk about how it kept me warm even when temps dropped... maybe start with a problem hook like 'if you wake up freezing when you camp'... oh and it packs down really small which was key for canoe camping... not sure if I should do broll or talking head or both..."
+    ></textarea>
+  </div>
+
+  <!-- CONTEXT (optional) -->
+  <div id="context-section">
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="toggleContext()">
+      <span id="context-toggle-icon">▶</span>
+      add context about you or your audience <span style="color:var(--text-faint);font-size:11px;">(optional but helps)</span>
+    </div>
+    <div id="context-fields" style="display:none;">
+      <div class="field" style="margin-bottom:8px;">
+        <input type="text" id="ctx-creator" placeholder="who are you? e.g. UGC creator, outdoor adventure niche, targeting brands like Big Agnes" />
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <input type="text" id="ctx-audience" placeholder="who's watching? e.g. people who camp and hike, gear buyers, problem-aware but haven't found a solution" />
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="analyzeAndGenerate()" style="margin-top:1.25rem;">turn this into a script ✦</button>
+
+  <p class="footer" style="margin-top:1.5rem;">Built for My Brain — free tools for ADHD creatives.<br>
+  made by <a href="https://kelseynocek.com">Kelsey Nocek</a> ·
+  <span class="profile-edit" onclick="changeApiKey()" style="cursor:pointer;">change API key</span></p>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  LOADING SCREEN                   -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-loading">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <p class="loading-msg" id="loading-msg">reading your brain dump...</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  SUGGESTED TYPE SCREEN            -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-suggest">
+  <div class="brand">Built for My Brain</div>
+  <h1>suggested<br><em>script type</em></h1>
+  <p class="sub">based on your brain dump, here's what Claude thinks will work best.</p>
+
+  <div class="suggested-banner" id="suggested-banner">
+    <div class="suggested-text" id="suggested-text"></div>
+  </div>
+
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:1.25rem;box-shadow:var(--shadow-sm);">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-faint);margin-bottom:8px;">why this type</div>
+    <div id="suggested-why" style="font-size:13px;color:var(--text-mid);line-height:1.6;"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="showTypeSelector()">pick a different type</button>
+    <button class="btn" onclick="generateScript()">generate this script ✦</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  RESULT SCREEN                    -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-result">
+  <div class="brand">Built for My Brain</div>
+  <h1>your <em>script</em></h1>
+
+  <div class="result-type-pill" id="result-type-pill"></div>
+
+  <!-- HOOK VARIATIONS -->
+  <div class="result-section" id="section-hooks" style="animation-delay:0s;">
+    <div class="result-section-header">
+      <span class="result-section-title">3 hook options — pick the one that fits</span>
+      <button class="copy-btn" onclick="copySection('hooks-content')">copy all</button>
+    </div>
+    <div class="result-section-body" id="hooks-content"></div>
+  </div>
+
+  <!-- THE SCRIPT -->
+  <div class="result-section" id="section-script" style="animation-delay:0.08s;">
+    <div class="result-section-header">
+      <span class="result-section-title">script — edit to match your voice</span>
+      <button class="copy-btn" onclick="copySection('script-content')">copy</button>
+    </div>
+    <div class="result-section-body">
+      <div class="result-text script" id="script-content"></div>
+      <div class="disclaimer" style="margin-top:10px;">⚠️ treat this as a starting point — rewrite anything that doesn't sound like you. Claude doesn't know every detail of your story.</div>
+    </div>
+  </div>
+
+  <!-- FILMING NOTES -->
+  <div class="result-section" id="section-filming" style="animation-delay:0.16s;">
+    <div class="result-section-header">
+      <span class="result-section-title">filming notes</span>
+      <button class="copy-btn" onclick="copySection('filming-content')">copy</button>
+    </div>
+    <div class="result-section-body" id="filming-content"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost btn-sm" onclick="backToDump()">← edit my dump</button>
+    <button class="btn btn-ghost btn-sm" onclick="showTypeSelector()">try different type</button>
+    <button class="btn btn-sm" onclick="copyAll()">copy everything</button>
+  </div>
+
+  <p class="footer" style="margin-top:1.5rem;">Built for My Brain — free tools for ADHD creatives.<br>
+  made by <a href="https://kelseynocek.com">Kelsey Nocek</a> ·
+  <span class="profile-edit" onclick="changeApiKey()" style="cursor:pointer;">change API key</span></p>
+</div>
+
+<!-- TYPE SELECTOR MODAL -->
+<div id="type-overlay" style="display:none;" class="type-overlay" onclick="closeTypeSelector(event)">
+  <div class="type-modal">
+    <div class="type-modal-handle"></div>
+    <div class="type-modal-title">pick a script type</div>
+    <div class="type-grid" id="type-grid"></div>
+    <button class="btn" style="margin-top:1rem;" onclick="confirmTypeSelection()">generate this type ✦</button>
+  </div>
+</div>
+
+</div>
+<script>
+const API_KEY_KEY = 'bfmb_apikey_v1';
+const CONTEXT_KEY = 'bfmb_script_context_v1';
+
+let userApiKey = null;
+let currentDump = '';
+let suggestedType = null;
+let selectedType = null;
+let savedContext = { creator: '', audience: '' };
+
+const SCRIPT_TYPES = [
+  { id: 'broll', icon: '🎬', name: 'B-roll', desc: 'visual storytelling, no talking head' },
+  { id: 'testimonial', icon: '🗣', name: 'Testimonial', desc: 'personal experience and results' },
+  { id: 'demo', icon: '📦', name: 'Demo', desc: 'show how a product works' },
+  { id: 'hook-video', icon: '🎣', name: 'Hook video', desc: 'problem-first, scroll-stopping open' },
+  { id: 'talking-head', icon: '📹', name: 'Talking head', desc: 'direct to camera, conversational' },
+  { id: 'social-post', icon: '📱', name: 'Social post', desc: 'caption + hashtags for Instagram or TikTok' },
+  { id: 'carousel', icon: '🖼', name: 'Carousel', desc: 'slide-by-slide storytelling' },
+  { id: 'ugc-ad', icon: '💰', name: 'UGC ad script', desc: 'paid ad ready, conversion focused' },
+];
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  try { userApiKey = localStorage.getItem(API_KEY_KEY) || null; } catch(e) {}
+  try {
+    const ctx = localStorage.getItem(CONTEXT_KEY);
+    if (ctx) savedContext = JSON.parse(ctx);
+  } catch(e) {}
+
+  buildTypeGrid();
+
+  if (!userApiKey) show('screen-apikey');
+  else show('screen-dump');
+});
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── API KEY ───────────────────────────────────────────────────────────────────
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  const err = document.getElementById('api-key-error');
+  if (!key || !key.startsWith('sk-ant-')) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  userApiKey = key;
+  try { localStorage.setItem(API_KEY_KEY, key); } catch(e) {}
+  show('screen-dump');
+}
+
+function changeApiKey() {
+  userApiKey = null;
+  try { localStorage.removeItem(API_KEY_KEY); } catch(e) {}
+  show('screen-apikey');
+}
+
+// ── CONTEXT ───────────────────────────────────────────────────────────────────
+function toggleContext() {
+  const fields = document.getElementById('context-fields');
+  const icon = document.getElementById('context-toggle-icon');
+  const isOpen = fields.style.display !== 'none';
+  fields.style.display = isOpen ? 'none' : 'block';
+  icon.textContent = isOpen ? '▶' : '▼';
+  if (!isOpen) {
+    document.getElementById('ctx-creator').value = savedContext.creator || '';
+    document.getElementById('ctx-audience').value = savedContext.audience || '';
+  }
+}
+
+function editContext() { toggleContext(); }
+
+function saveContext() {
+  savedContext = {
+    creator: document.getElementById('ctx-creator')?.value.trim() || '',
+    audience: document.getElementById('ctx-audience')?.value.trim() || '',
+  };
+  try { localStorage.setItem(CONTEXT_KEY, JSON.stringify(savedContext)); } catch(e) {}
+}
+
+// ── TYPE GRID ──────────────────────────────────────────────────────────────────
+function buildTypeGrid() {
+  const grid = document.getElementById('type-grid');
+  grid.innerHTML = '';
+  SCRIPT_TYPES.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'type-card' + (selectedType === t.id ? ' on' : '');
+    card.dataset.id = t.id;
+    card.innerHTML = `
+      <span class="type-card-icon">${t.icon}</span>
+      <div class="type-card-name">${t.name}</div>
+      <div class="type-card-desc">${t.desc}</div>
+    `;
+    card.onclick = () => {
+      document.querySelectorAll('.type-card').forEach(c => c.classList.remove('on'));
+      card.classList.add('on');
+      selectedType = t.id;
+    };
+    grid.appendChild(card);
+  });
+}
+
+function showTypeSelector() {
+  buildTypeGrid();
+  document.getElementById('type-overlay').style.display = 'flex';
+}
+
+function closeTypeSelector(e) {
+  if (e.target === document.getElementById('type-overlay')) {
+    document.getElementById('type-overlay').style.display = 'none';
+  }
+}
+
+function confirmTypeSelection() {
+  if (!selectedType) { alert('pick a script type first'); return; }
+  document.getElementById('type-overlay').style.display = 'none';
+  generateScript();
+}
+
+// ── ANALYZE ───────────────────────────────────────────────────────────────────
+async function analyzeAndGenerate() {
+  const dump = document.getElementById('dump-text').value.trim();
+  if (!dump || dump.length < 20) { alert('add more to your brain dump first — the messier the better'); return; }
+  currentDump = dump;
+  saveContext();
+
+  show('screen-loading');
+  const msgs = ['reading your brain dump...', 'figuring out the best format...', 'almost there...'];
+  let mi = 0;
+  const interval = setInterval(() => {
+    document.getElementById('loading-msg').textContent = msgs[mi++ % msgs.length];
+  }, 1500);
+
+  const creatorCtx = document.getElementById('ctx-creator')?.value.trim() || savedContext.creator || '';
+  const audienceCtx = document.getElementById('ctx-audience')?.value.trim() || savedContext.audience || '';
+
+  const analyzePrompt = `You are a UGC and content script expert. Analyze this brain dump and suggest the best script type.
+
+BRAIN DUMP:
+${dump}
+
+${creatorCtx ? `CREATOR CONTEXT: ${creatorCtx}` : ''}
+${audienceCtx ? `AUDIENCE: ${audienceCtx}` : ''}
+
+AVAILABLE SCRIPT TYPES: broll, testimonial, demo, hook-video, talking-head, social-post, carousel, ugc-ad
+
+Return ONLY a raw JSON object:
+{
+  "suggestedType": "the type id that fits best",
+  "typeName": "human readable name",
+  "why": "one clear sentence explaining why this type fits the brain dump",
+  "confidence": "high or medium"
+}
+
+No markdown, no explanation, raw JSON only.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': userApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        messages: [{ role: 'user', content: analyzePrompt }]
+      })
+    });
+    const data = await res.json();
+    clearInterval(interval);
+
+    let raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const start = raw.indexOf('{'); const end = raw.lastIndexOf('}');
+    raw = raw.slice(start, end + 1);
+    const analysis = JSON.parse(raw);
+
+    suggestedType = analysis.suggestedType;
+    selectedType = suggestedType;
+
+    const typeInfo = SCRIPT_TYPES.find(t => t.id === suggestedType) || SCRIPT_TYPES[0];
+    document.getElementById('suggested-banner').innerHTML = `
+      <div class="suggested-text">suggested type: <strong>${typeInfo.icon} ${analysis.typeName || typeInfo.name}</strong></div>
+      <span class="suggested-change" onclick="showTypeSelector()">pick different →</span>
+    `;
+    document.getElementById('suggested-why').textContent = analysis.why || 'this type fits your content well.';
+
+    show('screen-suggest');
+
+  } catch(err) {
+    clearInterval(interval);
+    console.error(err);
+    // Fall back to direct generation with talking-head
+    selectedType = 'talking-head';
+    suggestedType = 'talking-head';
+    generateScript();
+  }
+}
+
+// ── GENERATE SCRIPT ───────────────────────────────────────────────────────────
+async function generateScript() {
+  document.getElementById('type-overlay').style.display = 'none';
+  show('screen-loading');
+
+  const msgs = ['writing your script...', 'crafting the hooks...', 'adding filming notes...', 'almost ready...'];
+  let mi = 0;
+  const interval = setInterval(() => {
+    document.getElementById('loading-msg').textContent = msgs[mi++ % msgs.length];
+  }, 1500);
+
+  const typeInfo = SCRIPT_TYPES.find(t => t.id === selectedType) || SCRIPT_TYPES[0];
+  const creatorCtx = savedContext.creator || '';
+  const audienceCtx = savedContext.audience || '';
+
+  const scriptPrompt = `You are an expert UGC and content script writer. Turn this brain dump into a polished script.
+
+BRAIN DUMP:
+${currentDump}
+
+SCRIPT TYPE: ${typeInfo.name} — ${typeInfo.desc}
+${creatorCtx ? `CREATOR: ${creatorCtx}` : ''}
+${audienceCtx ? `AUDIENCE: ${audienceCtx}` : ''}
+
+Generate the following. Return ONLY a raw JSON object with these exact fields:
+
+{
+  "hooks": [
+    {"num": 1, "text": "first hook option — problem-first, scroll-stopping"},
+    {"num": 2, "text": "second hook option — curiosity or bold claim"},
+    {"num": 3, "text": "third hook option — relatable or unexpected angle"}
+  ],
+  "script": "the full script here. use line breaks between sections. write conversationally — NOT as marketing copy. sound like a real person talking. include [B-ROLL: description] markers where relevant for visual scripts. keep it under 60 seconds when read aloud.",
+  "filmingNotes": [
+    {"icon": "📹", "note": "specific filming instruction 1"},
+    {"icon": "💡", "note": "lighting or setup tip"},
+    {"icon": "✂️", "note": "editing note"},
+    {"icon": "🎵", "note": "music or audio suggestion"},
+    {"icon": "📱", "note": "platform or format tip"}
+  ]
+}
+
+RULES:
+- Script must sound natural and human — not polished marketing copy
+- Hooks should each be genuinely different angles, not variations of the same idea
+- Filming notes should be specific and actionable, not generic
+- Keep all strings under 300 chars
+- No markdown inside strings, no quotes that break JSON
+- Raw JSON only, no explanation`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': userApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: scriptPrompt }]
+      })
+    });
+    const data = await res.json();
+    clearInterval(interval);
+
+    let raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const start = raw.indexOf('{'); const end = raw.lastIndexOf('}');
+    if (start === -1 || end === -1) throw new Error('no JSON');
+    raw = raw.slice(start, end + 1);
+
+    let result;
+    try { result = JSON.parse(raw); }
+    catch {
+      raw = raw.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\n/g, '\\n');
+      result = JSON.parse(raw);
+    }
+
+    renderResult(result, typeInfo);
+
+  } catch(err) {
+    clearInterval(interval);
+    console.error(err);
+    document.getElementById('loading-msg').innerHTML = 'something went wrong. <button onclick="generateScript()" style="margin-top:12px;display:block;padding:10px 20px;border-radius:8px;border:none;background:var(--sage);color:white;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif;">try again</button>';
+  }
+}
+
+function renderResult(result, typeInfo) {
+  document.getElementById('result-type-pill').textContent = typeInfo.icon + ' ' + typeInfo.name;
+
+  // Hooks
+  const hooksEl = document.getElementById('hooks-content');
+  hooksEl.innerHTML = '';
+  (result.hooks || []).forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'hook-item';
+    item.innerHTML = `
+      <span class="hook-num">hook ${h.num}</span>
+      <div class="hook-text">"${h.text}"</div>
+      <button class="hook-copy" onclick="copyText('${h.text.replace(/'/g, "\\'")}', this)">copy</button>
+    `;
+    hooksEl.appendChild(item);
+  });
+
+  // Script
+  document.getElementById('script-content').textContent = result.script || '';
+
+  // Filming notes
+  const filmingEl = document.getElementById('filming-content');
+  filmingEl.innerHTML = '';
+  (result.filmingNotes || []).forEach(n => {
+    const item = document.createElement('div');
+    item.className = 'filming-note';
+    item.innerHTML = `<span class="filming-note-icon">${n.icon}</span><div class="filming-note-text">${n.note}</div>`;
+    filmingEl.appendChild(item);
+  });
+
+  show('screen-result');
+}
+
+// ── COPY ──────────────────────────────────────────────────────────────────────
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function copySection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let text = '';
+  if (id === 'hooks-content') {
+    text = [...el.querySelectorAll('.hook-text')].map((h, i) => `Hook ${i+1}: ${h.textContent}`).join('\n\n');
+  } else {
+    text = el.textContent.trim();
+  }
+  const btn = el.closest('.result-section').querySelector('.copy-btn');
+  navigator.clipboard.writeText(text).then(() => {
+    if (btn) { btn.textContent = 'copied!'; setTimeout(() => btn.textContent = 'copy', 1500); }
+  });
+}
+
+function copyAll() {
+  const hooks = [...document.querySelectorAll('.hook-text')].map((h, i) => `Hook ${i+1}: ${h.textContent}`).join('\n\n');
+  const script = document.getElementById('script-content').textContent;
+  const filming = [...document.querySelectorAll('.filming-note-text')].map(n => '• ' + n.textContent).join('\n');
+  const all = `HOOKS\n\n${hooks}\n\n---\nSCRIPT\n\n${script}\n\n---\nFILMING NOTES\n\n${filming}`;
+  navigator.clipboard.writeText(all).then(() => {
+    const btn = event.target;
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy everything', 1500);
+  });
+}
+
+function backToDump() {
+  show('screen-dump');
+}
+</script>
+</body>
+</html>
