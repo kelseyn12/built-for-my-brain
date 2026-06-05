@@ -550,6 +550,50 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
 <body>
 <div class="container">
 
+<a href="./index.html" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-faint);text-decoration:none;margin-bottom:1.5rem;transition:color 0.15s;" onmouseover="this.style.color='var(--sage)'" onmouseout="this.style.color='var(--text-faint)'">
+  ← built for my brain
+</a>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  API KEY SCREEN                           -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-apikey">
+  <div class="brand">Built for My Brain</div>
+  <h1>one quick<br><em>setup</em></h1>
+  <p class="sub">this tool uses AI to build your personalized plan. you'll need a free Anthropic API key — it takes about 2 minutes to get one and costs pennies to use.</p>
+
+  <div style="background:var(--bg-soft);border:1px solid var(--border-mid);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;">how to get your free API key:</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">go to <a href="https://console.anthropic.com" target="_blank" style="color:var(--sage);font-weight:500;">console.anthropic.com</a> and create a free account</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">add $5 credit — this will last months at this usage level</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">go to API Keys → Create Key → copy and paste it below</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="field-label">paste your API key here</span>
+    <span class="field-hint">your key stays in your browser only — it's never sent anywhere except directly to Anthropic to generate your plan.</span>
+    <input type="password" id="api-key-input" placeholder="sk-ant-..." style="font-family:monospace;font-size:13px;letter-spacing:0.02em;" />
+    <span id="api-key-error" style="display:none;font-size:12px;color:#c0392b;margin-top:6px;display:none;">that doesn't look right — Anthropic API keys start with sk-ant-</span>
+  </div>
+
+  <button class="btn" onclick="saveApiKey()">save and continue →</button>
+
+  <p style="font-size:11px;color:var(--text-faint);margin-top:1rem;line-height:1.6;text-align:center;">
+    your key is stored locally in your browser and never shared. each plan generation costs less than $0.01.
+  </p>
+</div>
+
 <!-- ══════════════════════════════════════════ -->
 <!--  SETUP SCREEN                             -->
 <!-- ══════════════════════════════════════════ -->
@@ -810,7 +854,8 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
 
   <p class="footer">Built for My Brain — free tools for ADHD creatives.<br>
   made by <a href="https://kelseynocek.com">Kelsey Nocek</a> ·
-  <span class="profile-edit" onclick="showSetup()" style="cursor:pointer;">edit profile</span></p>
+  <span class="profile-edit" onclick="showSetup()" style="cursor:pointer;">edit profile</span> ·
+  <span class="profile-edit" onclick="changeApiKey()" style="cursor:pointer;">change API key</span></p>
 </div>
 
 </div><!-- /container -->
@@ -820,12 +865,14 @@ const ALL_DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const PROFILE_KEY = 'bfmb_profile_v3';
 const WEEK_KEY = 'bfmb_week_v3';
 const SETUP_DRAFT_KEY = 'bfmb_setup_draft_v3';
+const API_KEY_KEY = 'bfmb_apikey_v1';
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let profile = null;
 let setupCreator = null;
 let weekState = { energy: null, priority: '', commitments: {}, deadlines: [], filmWeek: 'neither' };
 let lastWeekUnfinished = null;
+let userApiKey = null;
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -834,8 +881,15 @@ window.addEventListener('DOMContentLoaded', () => {
   loadProfile();
   restoreSetupDraft();
   checkLastWeek();
-  if (profile) showCheckin();
-  else show('screen-setup');
+  // Check for API key first
+  try { userApiKey = localStorage.getItem(API_KEY_KEY) || null; } catch(e) {}
+  if (!userApiKey) {
+    show('screen-apikey');
+  } else if (profile) {
+    showCheckin();
+  } else {
+    show('screen-setup');
+  }
 });
 
 function show(id) {
@@ -844,7 +898,29 @@ function show(id) {
   window.scrollTo(0, 0);
 }
 
-// ── SETUP ─────────────────────────────────────────────────────────────────────
+// ── API KEY ───────────────────────────────────────────────────────────────────
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  const errorEl = document.getElementById('api-key-error');
+  if (!key || !key.startsWith('sk-ant-')) {
+    errorEl.style.display = 'block';
+    return;
+  }
+  errorEl.style.display = 'none';
+  userApiKey = key;
+  try { localStorage.setItem(API_KEY_KEY, key); } catch(e) {}
+  if (profile) showCheckin();
+  else show('screen-setup');
+}
+
+function changeApiKey() {
+  userApiKey = null;
+  try { localStorage.removeItem(API_KEY_KEY); } catch(e) {}
+  document.getElementById('api-key-input').value = '';
+  show('screen-apikey');
+}
+
+
 function buildDayChips(containerId) {
   const wrap = document.getElementById(containerId);
   if (!wrap) return;
@@ -1223,7 +1299,12 @@ No markdown, no explanation, raw JSON only.`;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': userApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 2000,
@@ -1251,7 +1332,12 @@ No markdown, no explanation, raw JSON only.`;
   } catch(err) {
     clearInterval(interval);
     console.error(err);
-    document.getElementById('loading-msg').innerHTML = 'something went wrong. <button onclick="buildWeek()" style="margin-top:12px;display:block;padding:10px 20px;border-radius:8px;border:none;background:var(--sage);color:white;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif;">try again</button>';
+    const isAuthError = err.message?.includes('401') || err.message?.includes('auth');
+    if (isAuthError) {
+      document.getElementById('loading-msg').innerHTML = 'API key issue. <button onclick="changeApiKey()" style="margin-top:12px;display:block;padding:10px 20px;border-radius:8px;border:none;background:var(--sage);color:white;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif;">update my API key</button>';
+    } else {
+      document.getElementById('loading-msg').innerHTML = 'something went wrong. <button onclick="buildWeek()" style="margin-top:12px;display:block;padding:10px 20px;border-radius:8px;border:none;background:var(--sage);color:white;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif;">try again</button>';
+    }
   }
 }
 
@@ -1389,7 +1475,12 @@ async function getStuckHelp(btn, firstTask, microStart) {
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': userApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 200,
