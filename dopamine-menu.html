@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Built for My Brain — Dopamine Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage: #4a7c59;
+  --sage-mid: #3d6b4a;
+  --sage-light: rgba(74,124,89,0.1);
+  --sage-border: rgba(74,124,89,0.25);
+  --teal: #3d7a72;
+  --teal-light: rgba(61,122,114,0.08);
+  --teal-border: rgba(61,122,114,0.22);
+  --amber: #8a6a3a;
+  --amber-light: rgba(138,106,58,0.1);
+  --amber-border: rgba(138,106,58,0.25);
+  --bg: #f4f2ee;
+  --bg-card: #ffffff;
+  --bg-soft: #eeecea;
+  --bg-softer: #e8e5e0;
+  --text: #2c3330;
+  --text-mid: #5a6b62;
+  --text-muted: #8a9e94;
+  --text-faint: #b8c5be;
+  --border: rgba(74,100,88,0.1);
+  --border-mid: rgba(74,100,88,0.18);
+  --shadow: 0 2px 8px rgba(44,51,48,0.07);
+  --shadow-sm: 0 1px 3px rgba(44,51,48,0.06);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+  --low: #4a6b8a;
+  --low-light: rgba(74,107,138,0.1);
+  --low-border: rgba(74,107,138,0.25);
+  --med: #8a6a3a;
+  --med-light: rgba(138,106,58,0.1);
+  --med-border: rgba(138,106,58,0.25);
+  --high: #4a7c59;
+  --high-light: rgba(74,124,89,0.1);
+  --high-border: rgba(74,124,89,0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 1.5rem 1.25rem 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 520px; margin: 0 auto; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-faint); text-decoration: none;
+  margin-bottom: 1.25rem; transition: color 0.15s;
+}
+.back-link:hover { color: var(--sage); }
+
+.brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--sage); margin-bottom: 6px; }
+h1 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; line-height: 1.15; color: var(--text); margin-bottom: 4px; }
+h1 em { font-style: italic; color: var(--sage); }
+.sub { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.5rem; }
+
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1.25rem; }
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 10px; text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text); line-height: 1; margin-bottom: 3px; }
+.stat-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ENERGY SELECTOR */
+.energy-prompt { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+.energy-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.energy-btn {
+  flex: 1; padding: 14px 8px; border-radius: var(--radius); border: 1px solid var(--border-mid);
+  text-align: center; cursor: pointer; background: var(--bg-card); transition: all 0.15s;
+  box-shadow: var(--shadow-sm); font-family: 'DM Sans', sans-serif;
+}
+.energy-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.energy-btn.active-low { border-color: var(--low-border); background: var(--low-light); }
+.energy-btn.active-med { border-color: var(--med-border); background: var(--med-light); }
+.energy-btn.active-high { border-color: var(--high-border); background: var(--high-light); }
+.e-icon { font-size: 22px; margin-bottom: 4px; display: block; }
+.e-label { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+.e-sub { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+
+/* TASK LIST */
+.task-section { margin-bottom: 1.5rem; }
+.task-section-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.task-section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: var(--text-mid);
+}
+.task-section-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.dot-low { background: var(--low); }
+.dot-med { background: var(--med); }
+.dot-high { background: var(--high); }
+.task-count { font-size: 11px; color: var(--text-faint); }
+
+.task-list { display: flex; flex-direction: column; gap: 6px; }
+
+.task-item {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow-sm); transition: all 0.15s; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.task-item:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.task-item.completed { opacity: 0.45; }
+.task-item.completed .task-name { text-decoration: line-through; }
+
+.task-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; border-radius: 3px 0 0 3px;
+}
+.task-low::before { background: var(--low); }
+.task-med::before { background: var(--med); }
+.task-high::before { background: var(--high); }
+
+.task-name { font-size: 14px; color: var(--text); flex: 1; line-height: 1.4; }
+.task-time { font-size: 11px; color: var(--text-faint); flex-shrink: 0; }
+.task-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.task-action-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border-mid);
+  background: var(--bg-soft); color: var(--text-muted); cursor: pointer;
+  font-size: 13px; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+}
+.task-action-btn:hover { border-color: var(--sage-border); color: var(--sage); background: var(--sage-light); }
+.task-action-btn.start { background: var(--sage); color: #fff; border-color: var(--sage); }
+.task-action-btn.start:hover { background: var(--sage-mid); }
+
+/* COMPLETE ANIMATION */
+@keyframes completeFlash {
+  0% { background: var(--bg-card); }
+  30% { background: var(--sage-light); }
+  100% { background: var(--bg-card); }
+}
+.task-item.flash { animation: completeFlash 0.5s ease; }
+
+/* ADD TASK */
+.add-task-row {
+  display: flex; gap: 8px; margin-top: 8px; align-items: center;
+}
+.add-task-input {
+  flex: 1; padding: 9px 12px; border: 1px dashed var(--border-mid);
+  border-radius: var(--radius-sm); font-size: 13px; background: var(--bg-soft);
+  color: var(--text); font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.add-task-input:focus { outline: none; border-style: solid; border-color: var(--sage); background: var(--bg-card); }
+.add-task-input::placeholder { color: var(--text-faint); }
+.add-task-time {
+  width: 80px; padding: 9px 10px; border: 1px dashed var(--border-mid);
+  border-radius: var(--radius-sm); font-size: 13px; background: var(--bg-soft);
+  color: var(--text); font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.add-task-time:focus { outline: none; border-style: solid; border-color: var(--sage); background: var(--bg-card); }
+.add-task-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: none;
+  background: var(--sage); color: #fff; cursor: pointer; font-size: 18px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+}
+.add-task-btn:hover { background: var(--sage-mid); transform: scale(1.05); }
+
+/* TIMER SCREEN */
+.timer-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2rem 1.5rem;
+  text-align: center; box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.timer-task-name { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+.timer-task-name em { font-style: italic; color: var(--sage); }
+.timer-energy-badge {
+  display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; border-radius: 99px; padding: 3px 10px; margin-bottom: 1.5rem;
+}
+
+.timer-circle-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto 1.5rem; }
+.timer-svg { transform: rotate(-90deg); }
+.timer-track { fill: none; stroke: var(--bg-softer); stroke-width: 6; }
+.timer-progress { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.timer-progress-low { stroke: var(--low); }
+.timer-progress-med { stroke: var(--med); }
+.timer-progress-high { stroke: var(--high); }
+.timer-text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center;
+}
+.timer-display { font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--text); line-height: 1; }
+.timer-label { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+
+.timer-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.timer-btn {
+  padding: 11px 22px; font-size: 14px; font-weight: 600; border-radius: var(--radius-sm);
+  cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.timer-btn-primary { background: var(--sage); color: #fff; box-shadow: 0 2px 6px rgba(74,124,89,0.2); }
+.timer-btn-primary:hover { background: var(--sage-mid); }
+.timer-btn-ghost { background: var(--bg-soft); color: var(--text-mid); border: 1px solid var(--border-mid); }
+.timer-btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); }
+.timer-btn-done { background: var(--sage); color: #fff; box-shadow: 0 2px 6px rgba(74,124,89,0.2); font-size: 16px; padding: 13px 28px; }
+.timer-btn-done:hover { background: var(--sage-mid); transform: scale(1.02); }
+
+/* COMPLETE SCREEN */
+.complete-card {
+  background: var(--bg-card); border: 1px solid var(--sage-border);
+  border-radius: var(--radius); padding: 2.5rem 1.5rem;
+  text-align: center; box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease;
+}
+.complete-icon { font-size: 52px; margin-bottom: 1rem; display: block; animation: popIn 0.4s ease; }
+@keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+.complete-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--sage); margin-bottom: 8px; }
+.complete-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+.complete-streak {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--amber-light); border: 1px solid var(--amber-border);
+  border-radius: 99px; padding: 6px 14px; font-size: 13px;
+  color: var(--amber); font-weight: 600; margin-bottom: 1.5rem;
+}
+
+/* NO GUILT */
+.no-guilt-btn {
+  font-size: 12px; color: var(--text-faint); background: none; border: none;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+  font-family: 'DM Sans', sans-serif; margin-top: 10px; display: block; margin: 10px auto 0;
+}
+.no-guilt-btn:hover { color: var(--text-muted); }
+
+/* BUTTONS */
+.btn {
+  padding: 10px 18px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm);
+  cursor: pointer; border: none; background: var(--sage); color: #fff;
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(74,124,89,0.2);
+}
+.btn:hover { background: var(--sage-mid); }
+.btn-ghost {
+  background: var(--bg-card); color: var(--text-mid); border: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); }
+.btn-row { display: flex; gap: 8px; margin-top: 1.25rem; }
+
+.tip-box {
+  background: var(--teal-light); border: 1px solid var(--teal-border);
+  border-radius: var(--radius); padding: 12px 14px; margin-top: 1.25rem;
+}
+.tip-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 4px; display: block; }
+.tip-box p { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+
+.footer { font-size: 11px; color: var(--text-faint); margin-top: 2rem; line-height: 1.65; }
+.footer a { color: var(--sage); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="./index.html" class="back-link">← built for my brain</a>
+
+<!-- ══════════════════════════════════ -->
+<!--  MAIN SCREEN                      -->
+<!-- ══════════════════════════════════ -->
+<div class="screen active" id="screen-main">
+  <div class="brand">Built for My Brain</div>
+  <h1>dopamine <em>menu</em></h1>
+  <p class="sub">pick your energy level. get a task that actually matches where you're at. start the timer. done.</p>
+
+  <!-- STATS -->
+  <div class="stats-row" id="stats-row"></div>
+
+  <!-- ENERGY SELECTOR -->
+  <div class="energy-prompt">how's your energy right now?</div>
+  <div class="energy-row">
+    <div class="energy-btn" id="ebtn-low" onclick="setEnergy('low')">
+      <span class="e-icon">🪫</span>
+      <div class="e-label">low</div>
+      <div class="e-sub">barely here</div>
+    </div>
+    <div class="energy-btn" id="ebtn-med" onclick="setEnergy('med')">
+      <span class="e-icon">⚡</span>
+      <div class="e-label">medium</div>
+      <div class="e-sub">functional</div>
+    </div>
+    <div class="energy-btn" id="ebtn-high" onclick="setEnergy('high')">
+      <span class="e-icon">🔥</span>
+      <div class="e-label">high</div>
+      <div class="e-sub">let's go</div>
+    </div>
+  </div>
+
+  <!-- TASK SECTIONS -->
+  <div id="task-sections"></div>
+
+  <div class="tip-box" id="energy-tip" style="display:none;">
+    <span class="tip-title">energy tip</span>
+    <p id="energy-tip-text"></p>
+  </div>
+
+  <div class="btn-row" style="margin-top:1.5rem;">
+    <button class="btn btn-ghost" onclick="resetCompleted()" style="font-size:12px;">clear completed</button>
+    <button class="btn btn-ghost" onclick="showEditMode()" style="font-size:12px;">edit menu</button>
+  </div>
+
+  <p class="footer" style="margin-top:1.5rem;">Built for My Brain — free tools for ADHD creatives.<br>
+  made by <a href="https://kelseynocek.com">Kelsey Nocek</a><br>
+  <span style="color:var(--text-faint);">your menu and streak are saved in this browser. use the same browser and device to keep your streak accurate.</span></p>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  TIMER SCREEN                     -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-timer">
+  <div class="brand">Built for My Brain</div>
+  <h1>focus <em>time</em></h1>
+
+  <div class="timer-card">
+    <div class="timer-task-name" id="timer-task-name"></div>
+    <div class="timer-energy-badge" id="timer-badge"></div>
+
+    <div class="timer-circle-wrap">
+      <svg class="timer-svg" width="160" height="160" viewBox="0 0 160 160">
+        <circle class="timer-track" cx="80" cy="80" r="68"/>
+        <circle class="timer-progress" id="timer-arc" cx="80" cy="80" r="68"
+          stroke-dasharray="427" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-text">
+        <div class="timer-display" id="timer-display">--:--</div>
+        <div class="timer-label" id="timer-sublabel">tap start</div>
+      </div>
+    </div>
+
+    <div class="timer-actions">
+      <button class="timer-btn timer-btn-ghost" onclick="cancelTimer()">← back</button>
+      <button class="timer-btn timer-btn-primary" id="timer-toggle" onclick="toggleTimer()">start</button>
+      <button class="timer-btn timer-btn-done" onclick="completeTask()" id="done-btn">done ✓</button>
+    </div>
+  </div>
+
+  <button class="no-guilt-btn" onclick="noGuilt()">not feeling it — no guilt, go back</button>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  COMPLETE SCREEN                  -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-complete">
+  <div class="brand">Built for My Brain</div>
+
+  <div class="complete-card">
+    <span class="complete-icon">✅</span>
+    <div class="complete-title">you did it.</div>
+    <p class="complete-sub" id="complete-sub"></p>
+    <div class="complete-streak" id="complete-streak"></div>
+    <div class="btn-row" style="justify-content:center;">
+      <button class="timer-btn timer-btn-ghost" onclick="showMain()">back to menu</button>
+      <button class="timer-btn timer-btn-primary" onclick="pickAnother()">pick another task</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  EDIT SCREEN                      -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-edit">
+  <div class="brand">Built for My Brain</div>
+  <h1>edit your <em>menu</em></h1>
+  <p class="sub">add, remove, or change tasks. keep each level to 5–8 tasks — fewer choices = less paralysis.</p>
+
+  <div id="edit-sections"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="showMain()">← done editing</button>
+  </div>
+
+  <p class="footer" style="margin-top:1.5rem;">your menu saves automatically.</p>
+</div>
+
+</div>
+<script>
+const MENU_KEY = 'bfmb_dopamine_v1';
+const STATS_KEY = 'bfmb_dopamine_stats_v1';
+
+const CIRCUMFERENCE = 2 * Math.PI * 68; // ~427
+
+const DEFAULT_TASKS = [
+  { id: 't1', energy: 'low', name: 'drink a full glass of water', minutes: 1, completed: false },
+  { id: 't2', energy: 'low', name: 'step outside for 5 minutes', minutes: 5, completed: false },
+  { id: 't3', energy: 'low', name: 'respond to one email or DM', minutes: 5, completed: false },
+  { id: 't4', energy: 'low', name: 'tidy one small area of your desk', minutes: 5, completed: false },
+  { id: 't5', energy: 'low', name: 'write down 3 things you need to do this week', minutes: 5, completed: false },
+  { id: 't6', energy: 'med', name: 'send 5 brand pitches', minutes: 30, completed: false },
+  { id: 't7', energy: 'med', name: 'film one quick clip for content', minutes: 20, completed: false },
+  { id: 't8', energy: 'med', name: 'do a 20 minute walk with your pet', minutes: 20, completed: false },
+  { id: 't9', energy: 'med', name: 'edit one short video', minutes: 30, completed: false },
+  { id: 't10', energy: 'med', name: 'research 5 new brands to pitch', minutes: 25, completed: false },
+  { id: 't11', energy: 'high', name: 'film a full content session', minutes: 90, completed: false },
+  { id: 't12', energy: 'high', name: 'send 15+ brand pitches', minutes: 60, completed: false },
+  { id: 't13', energy: 'high', name: 'write and schedule 3 social posts', minutes: 45, completed: false },
+  { id: 't14', energy: 'high', name: 'work on a spec piece from start to finish', minutes: 120, completed: false },
+  { id: 't15', energy: 'high', name: 'deep work session on your biggest project', minutes: 90, completed: false },
+];
+
+const ENERGY_CONFIG = {
+  low: { label: 'low energy', icon: '🪫', color: 'var(--low)', light: 'var(--low-light)', border: 'var(--low-border)', dotCls: 'dot-low', taskCls: 'task-low', btnCls: 'active-low', badgeBg: 'var(--low-light)', badgeColor: 'var(--low)', tip: 'low energy is not laziness. pick something tiny. starting is the whole battle. one small thing done beats three big things avoided.' },
+  med: { label: 'medium energy', icon: '⚡', color: 'var(--med)', light: 'var(--med-light)', border: 'var(--med-border)', dotCls: 'dot-med', taskCls: 'task-med', btnCls: 'active-med', badgeBg: 'var(--med-light)', badgeColor: 'var(--med)', tip: 'medium energy is actually your most reliable state. not too scattered, not too flat. this is when steady work happens.' },
+  high: { label: 'high energy', icon: '🔥', color: 'var(--high)', light: 'var(--high-light)', border: 'var(--high-border)', dotCls: 'dot-high', taskCls: 'task-high', btnCls: 'active-high', badgeBg: 'var(--high-light)', badgeColor: 'var(--high)', tip: 'high energy windows are precious. protect this time. do your hardest, most important thing first. do not waste it on email.' },
+};
+
+let tasks = [];
+let stats = { today: 0, streak: 0, lastDate: null, total: 0 };
+let currentEnergy = null;
+let activeTask = null;
+let timerInterval = null;
+let timerSeconds = 0;
+let timerTotal = 0;
+let timerRunning = false;
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  checkDayReset();
+  renderStats();
+  renderTasks();
+});
+
+function loadData() {
+  try {
+    const m = localStorage.getItem(MENU_KEY);
+    tasks = m ? JSON.parse(m) : JSON.parse(JSON.stringify(DEFAULT_TASKS));
+    const s = localStorage.getItem(STATS_KEY);
+    if (s) stats = JSON.parse(s);
+  } catch(e) {
+    tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+  }
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(MENU_KEY, JSON.stringify(tasks));
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  } catch(e) {}
+}
+
+function checkDayReset() {
+  const today = new Date().toDateString();
+  if (stats.lastDate && stats.lastDate !== today) {
+    // Check streak
+    const last = new Date(stats.lastDate);
+    const now = new Date();
+    const diff = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+    if (diff > 1) stats.streak = 0; // missed a day, reset streak
+    stats.today = 0;
+    tasks.forEach(t => t.completed = false);
+  }
+  stats.lastDate = today;
+  saveData();
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showMain() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  show('screen-main');
+  renderStats();
+  renderTasks();
+}
+
+// ── STATS ──────────────────────────────────────────────────────────────────────
+function renderStats() {
+  const completed = tasks.filter(t => t.completed).length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-num">${stats.today}</div>
+      <div class="stat-label">done today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">${stats.streak}</div>
+      <div class="stat-label">day streak 🔥</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">${stats.total}</div>
+      <div class="stat-label">total done</div>
+    </div>
+  `;
+}
+
+// ── ENERGY ────────────────────────────────────────────────────────────────────
+function setEnergy(level) {
+  currentEnergy = currentEnergy === level ? null : level;
+  ['low','med','high'].forEach(l => {
+    const btn = document.getElementById('ebtn-' + l);
+    btn.className = 'energy-btn' + (currentEnergy === l ? ' active-' + l : '');
+  });
+
+  const tip = document.getElementById('energy-tip');
+  const tipText = document.getElementById('energy-tip-text');
+  if (currentEnergy) {
+    tipText.textContent = ENERGY_CONFIG[currentEnergy].tip;
+    tip.style.display = 'block';
+  } else {
+    tip.style.display = 'none';
+  }
+  renderTasks();
+}
+
+// ── TASKS ─────────────────────────────────────────────────────────────────────
+function renderTasks() {
+  const container = document.getElementById('task-sections');
+  container.innerHTML = '';
+
+  const levels = currentEnergy ? [currentEnergy] : ['low','med','high'];
+
+  levels.forEach(level => {
+    const cfg = ENERGY_CONFIG[level];
+    const levelTasks = tasks.filter(t => t.energy === level);
+
+    const section = document.createElement('div');
+    section.className = 'task-section';
+
+    section.innerHTML = `
+      <div class="task-section-header">
+        <div class="task-section-title">
+          <div class="task-section-dot ${cfg.dotCls}"></div>
+          ${cfg.icon} ${cfg.label}
+        </div>
+        <span class="task-count">${levelTasks.filter(t => t.completed).length}/${levelTasks.length} done</span>
+      </div>
+      <div class="task-list" id="list-${level}"></div>
+    `;
+    container.appendChild(section);
+
+    const list = document.getElementById('list-' + level);
+    levelTasks.forEach(task => {
+      const item = document.createElement('div');
+      item.className = `task-item ${cfg.taskCls} ${task.completed ? 'completed' : ''}`;
+      item.id = 'task-' + task.id;
+      item.innerHTML = `
+        <div class="task-name">${task.name}</div>
+        <span class="task-time">${task.minutes}m</span>
+        <div class="task-actions">
+          ${!task.completed
+            ? `<button class="task-action-btn start" onclick="startTask('${task.id}', event)" title="start timer">▶</button>`
+            : `<button class="task-action-btn" onclick="uncomplete('${task.id}', event)" title="mark incomplete">↩</button>`
+          }
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  });
+}
+
+function startTask(id, e) {
+  e.stopPropagation();
+  activeTask = tasks.find(t => t.id === id);
+  if (!activeTask) return;
+
+  const cfg = ENERGY_CONFIG[activeTask.energy];
+  const nameEl = document.getElementById('timer-task-name');
+  nameEl.innerHTML = activeTask.name;
+
+  const badge = document.getElementById('timer-badge');
+  badge.textContent = cfg.icon + ' ' + cfg.label;
+  badge.style.background = cfg.light;
+  badge.style.color = cfg.color;
+  badge.style.border = '1px solid ' + cfg.border;
+  badge.style.borderRadius = '99px';
+  badge.style.padding = '3px 12px';
+  badge.style.fontSize = '12px';
+  badge.style.fontWeight = '600';
+
+  const arc = document.getElementById('timer-arc');
+  arc.className = 'timer-progress timer-progress-' + activeTask.energy;
+
+  timerTotal = activeTask.minutes * 60;
+  timerSeconds = timerTotal;
+  timerRunning = false;
+  updateTimerDisplay();
+
+  document.getElementById('timer-toggle').textContent = 'start';
+  document.getElementById('timer-sublabel').textContent = activeTask.minutes + ' min';
+
+  show('screen-timer');
+}
+
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-toggle').textContent = 'resume';
+    document.getElementById('timer-sublabel').textContent = 'paused';
+  } else {
+    timerRunning = true;
+    document.getElementById('timer-toggle').textContent = 'pause';
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      updateTimerDisplay();
+      if (timerSeconds <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timer-sublabel').textContent = "time's up!";
+        document.getElementById('timer-toggle').textContent = 'start over';
+      }
+    }, 1000);
+  }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  document.getElementById('timer-display').textContent =
+    m + ':' + String(s).padStart(2, '0');
+
+  const arc = document.getElementById('timer-arc');
+  const pct = timerSeconds / timerTotal;
+  arc.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
+}
+
+function cancelTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  timerRunning = false;
+  showMain();
+}
+
+function noGuilt() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  timerRunning = false;
+  showMain();
+}
+
+function completeTask() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  timerRunning = false;
+
+  if (activeTask) {
+    const task = tasks.find(t => t.id === activeTask.id);
+    if (task) task.completed = true;
+
+    // Update stats
+    stats.today++;
+    stats.total++;
+    const today = new Date().toDateString();
+    if (stats.lastDate === today && stats.today === 1) stats.streak++;
+    else if (stats.lastDate !== today) stats.streak = 1;
+    stats.lastDate = today;
+
+    saveData();
+
+    // Show complete screen
+    const msgs = [
+      `you finished "${activeTask.name}". that counts.`,
+      `done. that's one more than zero.`,
+      `"${activeTask.name}" — checked off. keep going.`,
+      `you showed up and did the thing. that's everything.`,
+    ];
+    document.getElementById('complete-sub').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    document.getElementById('complete-streak').innerHTML = `🔥 ${stats.streak} day streak · ${stats.today} done today`;
+    show('screen-complete');
+  }
+}
+
+function uncomplete(id, e) {
+  e.stopPropagation();
+  const task = tasks.find(t => t.id === id);
+  if (task) { task.completed = false; saveData(); renderTasks(); renderStats(); }
+}
+
+function pickAnother() {
+  showMain();
+}
+
+function resetCompleted() {
+  tasks.forEach(t => t.completed = false);
+  saveData();
+  renderTasks();
+  renderStats();
+}
+
+// ── EDIT MODE ─────────────────────────────────────────────────────────────────
+function showEditMode() {
+  renderEditSections();
+  show('screen-edit');
+}
+
+function renderEditSections() {
+  const container = document.getElementById('edit-sections');
+  container.innerHTML = '';
+
+  ['low','med','high'].forEach(level => {
+    const cfg = ENERGY_CONFIG[level];
+    const levelTasks = tasks.filter(t => t.energy === level);
+
+    const section = document.createElement('div');
+    section.style.marginBottom = '1.5rem';
+    section.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div class="task-section-dot ${cfg.dotCls}"></div>
+        <span style="font-size:13px;font-weight:600;color:var(--text-mid);">${cfg.icon} ${cfg.label}</span>
+        <span style="font-size:11px;color:var(--text-faint);">under 5 minutes for low, 5–30 for medium, 30+ for high</span>
+      </div>
+      <div id="edit-list-${level}" style="display:flex;flex-direction:column;gap:6px;"></div>
+    `;
+    container.appendChild(section);
+
+    const list = document.getElementById('edit-list-' + level);
+
+    levelTasks.forEach(task => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:6px;align-items:center;';
+      row.innerHTML = `
+        <input type="text" value="${task.name}" style="flex:1;padding:8px 10px;border:1px solid var(--border-mid);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-card);color:var(--text);font-family:DM Sans,sans-serif;"
+          onchange="updateTask('${task.id}', 'name', this.value)" />
+        <input type="text" value="${task.minutes}" style="width:52px;padding:8px 8px;border:1px solid var(--border-mid);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-card);color:var(--text);font-family:DM Sans,sans-serif;text-align:center;"
+          onchange="updateTask('${task.id}', 'minutes', this.value)" placeholder="min" />
+        <button onclick="deleteTask('${task.id}')" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border-mid);background:var(--bg-soft);color:var(--text-faint);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:DM Sans,sans-serif;transition:all 0.15s;"
+          onmouseover="this.style.borderColor='#e05555';this.style.color='#e05555';"
+          onmouseout="this.style.borderColor='var(--border-mid)';this.style.color='var(--text-faint)';">×</button>
+      `;
+      list.appendChild(row);
+    });
+
+    // Add new task row
+    const addRow = document.createElement('div');
+    addRow.className = 'add-task-row';
+    addRow.innerHTML = `
+      <input type="text" class="add-task-input" id="new-name-${level}" placeholder="add a task..." />
+      <input type="text" class="add-task-time" id="new-time-${level}" placeholder="min" />
+      <button class="add-task-btn" onclick="addTask('${level}')">+</button>
+    `;
+    list.appendChild(addRow);
+  });
+}
+
+function updateTask(id, field, value) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  if (field === 'minutes') task.minutes = parseInt(value) || task.minutes;
+  else task[field] = value;
+  saveData();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  saveData();
+  renderEditSections();
+}
+
+function addTask(level) {
+  const nameEl = document.getElementById('new-name-' + level);
+  const timeEl = document.getElementById('new-time-' + level);
+  const name = nameEl.value.trim();
+  const minutes = parseInt(timeEl.value) || 10;
+  if (!name) return;
+  tasks.push({
+    id: 't' + Date.now(),
+    energy: level,
+    name,
+    minutes,
+    completed: false,
+  });
+  nameEl.value = '';
+  timeEl.value = '';
+  saveData();
+  renderEditSections();
+}
+</script>
+</body>
+</html>
