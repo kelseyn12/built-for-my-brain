@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Built for My Brain — Weekly Focus Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage: #4a7c59;
+  --sage-light: rgba(74,124,89,0.1);
+  --sage-border: rgba(74,124,89,0.25);
+  --sage-mid: #3d6b4a;
+  --teal: #3d7a72;
+  --teal-light: rgba(61,122,114,0.08);
+  --teal-border: rgba(61,122,114,0.22);
+  --slate: #4a6b8a;
+  --slate-light: rgba(74,107,138,0.08);
+  --amber: #8a6a3a;
+  --amber-light: rgba(138,106,58,0.08);
+  --amber-border: rgba(138,106,58,0.2);
+  --bg: #f4f2ee;
+  --bg-card: #ffffff;
+  --bg-soft: #eeecea;
+  --bg-softer: #e8e5e0;
+  --text: #2c3330;
+  --text-mid: #5a6b62;
+  --text-muted: #8a9e94;
+  --text-faint: #b8c5be;
+  --border: rgba(74,100,88,0.1);
+  --border-mid: rgba(74,100,88,0.18);
+  --shadow: 0 2px 8px rgba(44,51,48,0.07);
+  --shadow-sm: 0 1px 3px rgba(44,51,48,0.06);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 2rem 1.25rem 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 520px; margin: 0 auto; }
+
+/* ── BRAND ── */
+.brand {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--sage);
+  margin-bottom: 8px;
+}
+
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+h1 em { font-style: italic; color: var(--sage); }
+
+.sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 1.75rem;
+}
+
+/* ── SCREENS / STEPS ── */
+.screen { display: none; }
+.screen.active { display: block; }
+.step { display: none; }
+.step.active { display: block; }
+
+/* ── PROGRESS BAR ── */
+.progress-wrap { margin-bottom: 1.75rem; }
+.progress-bar-bg {
+  height: 4px;
+  background: var(--bg-softer);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--sage);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-label { font-size: 11px; color: var(--text-faint); letter-spacing: 0.04em; }
+
+/* ── SAVE NOTICE ── */
+.save-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-bottom: 1.25rem;
+  font-style: italic;
+}
+.save-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  flex-shrink: 0;
+}
+
+/* ── FIELDS ── */
+.field { margin-bottom: 1.25rem; }
+.field-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  display: block;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.field-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.field-note {
+  font-size: 11px;
+  color: var(--sage);
+  margin-top: 6px;
+  display: block;
+  font-style: italic;
+}
+
+/* ── INPUTS ── */
+input[type=text], textarea {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+input[type=text]:focus, textarea:focus {
+  outline: none;
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px var(--sage-light);
+}
+input::placeholder, textarea::placeholder { color: var(--text-faint); }
+textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
+
+/* ── CHIPS ── */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 7px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--border-mid);
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--bg-card);
+  color: var(--text-mid);
+  transition: all 0.15s;
+  user-select: none;
+  font-family: 'DM Sans', sans-serif;
+  box-shadow: var(--shadow-sm);
+}
+.chip:hover { border-color: var(--sage-border); color: var(--text); }
+.chip.on { background: var(--sage-light); border-color: var(--sage-border); color: var(--sage); font-weight: 500; }
+
+/* ── ENERGY ── */
+.energy-row { display: flex; gap: 8px; }
+.energy-opt {
+  flex: 1;
+  padding: 14px 6px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-mid);
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-card);
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.energy-opt:hover { border-color: var(--sage-border); }
+.energy-opt.on { border-color: var(--sage-border); background: var(--sage-light); }
+.e-icon { font-size: 24px; margin-bottom: 5px; display: block; }
+.e-label { font-size: 12px; color: var(--text-muted); line-height: 1.3; }
+.energy-opt.on .e-label { color: var(--sage); }
+
+/* ── BUCKET ROWS ── */
+.bucket-row { display: flex; gap: 7px; align-items: center; margin-bottom: 7px; }
+.bucket-row input { flex: 1; }
+.icon-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-card);
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.icon-btn:hover { border-color: #e05555; color: #e05555; }
+.add-link {
+  font-size: 13px;
+  color: var(--sage);
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  margin-top: 4px;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── DAY ROWS (commitments) ── */
+.day-row { margin-bottom: 8px; }
+.day-row-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.day-row-name { font-size: 13px; font-weight: 600; color: var(--text); width: 36px; flex-shrink: 0; }
+.day-row-chips { display: flex; gap: 5px; flex-wrap: wrap; flex: 1; }
+.day-mini-chip {
+  padding: 5px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--border-mid);
+  font-size: 11px;
+  cursor: pointer;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  transition: all 0.13s;
+  font-family: 'DM Sans', sans-serif;
+}
+.day-mini-chip.on { background: var(--sage-light); border-color: var(--sage-border); color: var(--sage); }
+.day-mini-chip.rest.on { background: var(--teal-light); border-color: var(--teal-border); color: var(--teal); }
+.day-mini-chip.commitment.on { background: var(--amber-light); border-color: var(--amber-border); color: var(--amber); }
+.day-commit-input { margin-top: 5px; }
+
+/* ── BUTTONS ── */
+.btn {
+  width: 100%;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius);
+  cursor: pointer;
+  border: none;
+  background: var(--sage);
+  color: #fff;
+  margin-top: 1.25rem;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(74,124,89,0.2);
+}
+.btn:hover { background: var(--sage-mid); }
+.btn:active { transform: scale(0.98); }
+.btn-ghost {
+  background: var(--bg-card);
+  color: var(--text-mid);
+  border: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); }
+.btn-sm { padding: 9px 18px; font-size: 13px; width: auto; margin-top: 0; }
+.btn-row { display: flex; gap: 8px; margin-top: 1.25rem; }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+
+/* ── LOADING ── */
+.loading-wrap { text-align: center; padding: 4rem 1rem; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 2px solid var(--border-mid);
+  border-top-color: var(--sage);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin: 0 auto 1.25rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+.loading-sub { font-size: 12px; color: var(--text-faint); margin-top: 8px; font-style: italic; }
+
+/* ── RESULT HEADER ── */
+.result-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sage-light);
+  border: 1px solid var(--sage-border);
+  border-radius: 99px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--sage);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.result-summary {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+.result-summary strong { color: var(--text); font-weight: 500; }
+
+/* ── WEEK GRID ── */
+.week-grid { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── DAY CARDS ── */
+.day-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.day-card.is-today { border-color: var(--sage-border); box-shadow: 0 0 0 2px var(--sage-light), var(--shadow); }
+.day-card.is-rest { border-color: var(--teal-border); background: linear-gradient(135deg, #fff 0%, rgba(61,122,114,0.04) 100%); }
+.day-card.is-commitment { border-color: var(--amber-border); background: linear-gradient(135deg, #fff 0%, rgba(138,106,58,0.04) 100%); }
+.day-card.is-catchup { border-color: rgba(74,107,138,0.25); background: linear-gradient(135deg, #fff 0%, rgba(74,107,138,0.04) 100%); }
+.day-card.is-past { opacity: 0.38; pointer-events: none; }
+
+.card-header {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.card-left { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.card-day { font-size: 13px; font-weight: 700; color: var(--text); }
+.day-card.is-rest .card-day { color: var(--text-muted); }
+.day-card.is-past .card-day { color: var(--text-faint); }
+.card-date { font-size: 11px; color: var(--text-faint); flex-shrink: 0; }
+
+.today-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); flex-shrink: 0; }
+
+/* ── BADGES — max 2 shown ── */
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 99px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+.badge-today { background: var(--sage); color: #fff; }
+.badge-rest { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal-border); }
+.badge-commitment { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+.badge-catchup { background: var(--slate-light); color: var(--slate); border: 1px solid rgba(74,107,138,0.25); }
+.badge-deadline { background: #fff0f0; color: #c0392b; border: 1px solid rgba(192,57,43,0.25); }
+.badge-film { background: var(--sage-light); color: var(--sage); border: 1px solid var(--sage-border); }
+.badge-edit { background: var(--slate-light); color: var(--slate); border: 1px solid rgba(74,107,138,0.25); }
+
+/* ── CARD BODY ── */
+.card-body { padding: 12px 14px 14px; }
+
+/* ── SEQUENCE ── */
+.seq { margin-bottom: 10px; }
+.seq:last-of-type { margin-bottom: 0; }
+.seq-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 3px;
+  display: block;
+}
+.seq-label.first { color: var(--sage); }
+.seq-label.then { color: var(--text-faint); }
+.seq-label.if-energy { color: var(--text-faint); opacity: 0.6; }
+.seq-task { font-size: 14px; color: var(--text); line-height: 1.45; }
+.seq-task.dim { color: var(--text-mid); font-size: 13px; }
+.seq-task.very-dim { color: var(--text-muted); font-size: 13px; }
+
+/* ── MICRO START ── */
+.micro-start {
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: var(--sage-light);
+  border-radius: var(--radius-xs);
+  border-left: 2px solid var(--sage);
+}
+.micro-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sage); margin-bottom: 2px; display: block; }
+.micro-task { font-size: 13px; color: var(--sage-mid); line-height: 1.4; }
+
+/* ── TIME ESTIMATE ── */
+.time-est {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 5px;
+}
+
+/* ── BUFFER NOTE ── */
+.buffer-note { font-size: 11px; color: var(--text-faint); margin-top: 6px; font-style: italic; }
+
+/* ── REST MESSAGE ── */
+.rest-msg { font-size: 14px; color: var(--teal); line-height: 1.55; font-style: italic; }
+
+/* ── STUCK BUTTON ── */
+.stuck-wrap { margin-top: 10px; }
+.stuck-btn {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-soft);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-xs);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+  width: 100%;
+  text-align: left;
+}
+.stuck-btn:hover { border-color: var(--sage-border); color: var(--sage); }
+.stuck-loading { font-size: 12px; color: var(--text-faint); font-style: italic; padding: 6px 0; }
+.stuck-result {
+  margin-top: 6px;
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-mid);
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.5;
+}
+
+/* ── DONE SECTION ── */
+.done-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.done-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-faint); margin-bottom: 6px; display: block; }
+.done-row { display: flex; gap: 8px; align-items: flex-start; }
+.done-check {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border-mid);
+  background: var(--bg-card);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  font-size: 12px;
+  margin-top: 2px;
+}
+.done-check.checked { background: var(--sage); border-color: var(--sage); color: #fff; }
+.done-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px dashed var(--border-mid);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  background: var(--bg-soft);
+  color: var(--text-mid);
+  font-family: 'DM Sans', sans-serif;
+  resize: none;
+  min-height: 44px;
+  transition: border-color 0.2s;
+}
+.done-input:focus { outline: none; border-color: var(--teal-border); border-style: solid; }
+.done-input::placeholder { color: var(--text-faint); }
+
+/* ── ROLLOVER BANNER ── */
+.rollover-banner {
+  background: var(--sage-light);
+  border: 1px solid var(--sage-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 1.25rem;
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+.rollover-banner strong { color: var(--sage); font-weight: 500; }
+
+/* ── TIP BOX ── */
+.tip-box {
+  background: var(--teal-light);
+  border: 1px solid var(--teal-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 1.25rem;
+}
+.tip-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 5px; display: block; }
+.tip-box p { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
+.tip-box strong { color: var(--text); font-weight: 500; }
+
+/* ── PROFILE BADGE ── */
+.profile-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 1.25rem;
+}
+.profile-info { font-size: 13px; color: var(--text-muted); }
+.profile-info strong { color: var(--text); font-weight: 500; }
+.profile-edit { font-size: 12px; color: var(--sage); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── DETAIL TOGGLE ── */
+.detail-toggle {
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1rem;
+  user-select: none;
+}
+.detail-toggle:hover { color: var(--sage); }
+.detail-toggle-icon { font-size: 10px; transition: transform 0.2s; }
+.detail-toggle-icon.open { transform: rotate(90deg); }
+.detail-section { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.detail-section.open { display: block; }
+
+/* ── FOOTER ── */
+.footer { font-size: 11px; color: var(--text-faint); margin-top: 2rem; line-height: 1.65; }
+.footer a { color: var(--sage); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ══════════════════════════════════════════ -->
+<!--  SETUP SCREEN                             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen active" id="screen-setup">
+  <div class="brand">Built for My Brain</div>
+  <h1>let's set up<br><em>your profile</em></h1>
+  <p class="sub">answer a few quick questions. we save as you go so you never lose your place. this only happens once.</p>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="setup-bar" style="width:25%"></div></div>
+    <span class="progress-label" id="setup-label">step 1 of 4</span>
+  </div>
+
+  <div class="save-notice"><div class="save-dot"></div> saving as you go — safe to close and come back</div>
+
+  <!-- STEP 1: Name + buckets -->
+  <div class="step active" id="setup-1">
+    <div class="field">
+      <span class="field-label">what's your name?</span>
+      <input type="text" id="p-name" placeholder="first name" oninput="autosaveSetup()" />
+    </div>
+    <div class="field">
+      <span class="field-label">what are your main areas of work?</span>
+      <span class="field-hint">these become the focus categories for each day of your week — 2 or 3 is ideal. name each one, then add a line about what's currently happening in it so the plan knows what to actually suggest.</span>
+      <div id="setup-buckets">
+        <div class="bucket-block">
+          <div class="bucket-row">
+            <input type="text" class="bucket-input" placeholder="e.g. client work, content creation, photography" oninput="autosaveSetup()" />
+            <button class="icon-btn" onclick="removeBucket(this)">×</button>
+          </div>
+          <input type="text" class="bucket-context" placeholder="what's currently happening here? e.g. have a client deliverable due, just starting a new project, waiting on feedback" oninput="autosaveSetup()" style="margin-bottom:12px;" />
+        </div>
+        <div class="bucket-block">
+          <div class="bucket-row">
+            <input type="text" class="bucket-input" placeholder="e.g. freelance design, Etsy shop, coaching" oninput="autosaveSetup()" />
+            <button class="icon-btn" onclick="removeBucket(this)">×</button>
+          </div>
+          <input type="text" class="bucket-context" placeholder="what's currently happening here? e.g. in testing phase, building something new, wrapping up a project" oninput="autosaveSetup()" style="margin-bottom:12px;" />
+        </div>
+      </div>
+      <button class="add-link" onclick="addBucket()">+ add another</button>
+      <span class="field-note">💡 more than 3 areas? your brain will fight you all week. what can genuinely wait until next week?</span>
+    </div>
+    <div class="field">
+      <span class="field-label">what happens every single day before work?</span>
+      <span class="field-hint">your daily anchors — walk, yoga, coffee, journaling. the plan protects these.</span>
+      <input type="text" id="p-nonneg" placeholder="e.g. morning walk, yoga, coffee before opening laptop" oninput="autosaveSetup()" />
+    </div>
+    <button class="btn" onclick="setupNext(2)">next →</button>
+  </div>
+
+  <!-- STEP 2: Creator details -->
+  <div class="step" id="setup-2">
+    <div class="field">
+      <span class="field-label">do you film and edit videos as part of your work?</span>
+      <div class="chips">
+        <div class="chip" data-val="yes" onclick="pickCreator(this)">yes — I film and edit</div>
+        <div class="chip" data-val="no" onclick="pickCreator(this)">not right now</div>
+      </div>
+    </div>
+
+    <div id="creator-fields" style="display:none;">
+      <div class="field">
+        <span class="field-label">how long does filming actually take?</span>
+        <span class="field-hint">include setup, the filming itself, and packing up. be honest — ADHD time blindness means it's always longer than you think.</span>
+        <div class="chips">
+          <div class="chip" data-group="filmtime" onclick="pickChip(this)">1–2 hours</div>
+          <div class="chip" data-group="filmtime" onclick="pickChip(this)">half a day</div>
+          <div class="chip" data-group="filmtime" onclick="pickChip(this)">most of a day</div>
+          <div class="chip" data-group="filmtime" onclick="pickChip(this)">it varies wildly</div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-label">how long does editing one video take?</span>
+        <span class="field-hint">include the music search spiral. you know the one.</span>
+        <div class="chips">
+          <div class="chip" data-group="edittime" onclick="pickChip(this)">under an hour</div>
+          <div class="chip" data-group="edittime" onclick="pickChip(this)">1–3 hours</div>
+          <div class="chip" data-group="edittime" onclick="pickChip(this)">half a day</div>
+          <div class="chip" data-group="edittime" onclick="pickChip(this)">all day honestly</div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-hint" style="font-size:13px; color: var(--sage); background: var(--sage-light); padding: 10px 12px; border-radius: var(--radius-xs); display:block;">📌 filming and editing will always be on separate days in your plan. switching between those brain modes kills both.</span>
+      </div>
+    </div>
+    <button class="btn" onclick="setupNext(3)">next →</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="setupNext(1)">← back</button>
+  </div>
+
+  <!-- STEP 3: Natural brain patterns -->
+  <div class="step" id="setup-3">
+    <div class="field">
+      <span class="field-label">which days feel most creative for you?</span>
+      <span class="field-hint">when does your brain naturally want to make things? no wrong answer — just honest ones.</span>
+      <div class="chips" id="creative-days"></div>
+    </div>
+    <div class="field">
+      <span class="field-label">which days feel better for admin and outreach?</span>
+      <span class="field-hint">emails, pitching, responding — the more operational left-brain work.</span>
+      <div class="chips" id="admin-days"></div>
+    </div>
+    <div class="field">
+      <span class="field-label">when do you do your best work?</span>
+      <div class="chips">
+        <div class="chip" data-group="besttime" onclick="pickChip(this)">mornings</div>
+        <div class="chip" data-group="besttime" onclick="pickChip(this)">afternoons</div>
+        <div class="chip" data-group="besttime" onclick="pickChip(this)">evenings</div>
+        <div class="chip" data-group="besttime" onclick="pickChip(this)">it varies</div>
+      </div>
+    </div>
+    <button class="btn" onclick="setupNext(4)">next →</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="setupNext(2)">← back</button>
+  </div>
+
+  <!-- STEP 4: Protect + extra -->
+  <div class="step" id="setup-4">
+    <div class="field">
+      <span class="field-label">what do you always want to protect?</span>
+      <span class="field-hint">mornings for yourself? evenings off? one full rest day? name it — the plan will always honor it.</span>
+      <input type="text" id="p-protect" placeholder="e.g. mornings for yoga, Sundays off, no work after 7pm" oninput="autosaveSetup()" />
+    </div>
+    <div class="field">
+      <span class="field-label">anything else the plan should know?</span>
+      <span class="field-hint">caregiving days, health stuff, ADHD patterns, anything that affects your week.</span>
+      <input type="text" id="p-extra" placeholder="e.g. I care for my dad some days, afternoon energy crashes" oninput="autosaveSetup()" />
+    </div>
+    <button class="btn" onclick="saveProfile()">save my profile ✦</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="setupNext(3)">← back</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  CHECK-IN SCREEN                          -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-checkin">
+  <div class="brand">Built for My Brain</div>
+  <h1>weekly<br><em>check-in</em></h1>
+  <p class="sub">3 questions. under 2 minutes. your plan is ready instantly.</p>
+
+  <div class="profile-badge">
+    <span class="profile-info">planning for <strong id="checkin-name"></strong></span>
+    <span class="profile-edit" onclick="showSetup()">edit profile</span>
+  </div>
+
+  <!-- Q1: Energy -->
+  <div class="field">
+    <span class="field-label">how's your energy been?</span>
+    <span class="field-hint">be honest — low energy weeks get a lighter plan. no motivation speeches here.</span>
+    <div class="energy-row">
+      <div class="energy-opt" data-val="low" onclick="pickEnergy(this)">
+        <span class="e-icon">🪫</span>
+        <div class="e-label">running on empty</div>
+      </div>
+      <div class="energy-opt" data-val="medium" onclick="pickEnergy(this)">
+        <span class="e-icon">⚡</span>
+        <div class="e-label">pretty okay</div>
+      </div>
+      <div class="energy-opt" data-val="high" onclick="pickEnergy(this)">
+        <span class="e-icon">🔥</span>
+        <div class="e-label">ready to go</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2: Priority -->
+  <div class="field">
+    <span class="field-label">what's the one thing that makes this week a win?</span>
+    <span class="field-hint">just one. ignore everything else for now.</span>
+    <input type="text" id="ci-priority" placeholder="e.g. send 20 pitches, finish client site, film collab" />
+  </div>
+
+  <!-- Q2b: Weekly context -->
+  <div class="field">
+    <span class="field-label">anything specific happening this week the plan should know about?</span>
+    <span class="field-hint">projects at a specific stage, one-off tasks, context that makes this week different from usual. the more you share, the more accurate the plan.</span>
+    <input type="text" id="ci-context" placeholder="e.g. have a big deliverable due, traveling mid-week, launching something new, lower capacity than usual" />
+  </div>
+
+  <!-- Q3: Days -->
+  <div class="field">
+    <span class="field-label">any days blocked this week?</span>
+    <span class="field-hint">mark days that have commitments or that you want as rest. leave blank if free.</span>
+    <div id="checkin-days"></div>
+  </div>
+
+  <!-- Optional details toggle -->
+  <div class="detail-toggle" onclick="toggleDetails(this)">
+    <span class="detail-toggle-icon">▶</span>
+    have deadlines or filming needs this week? add them here
+  </div>
+  <div class="detail-section" id="detail-section">
+    <div class="field">
+      <span class="field-label">any hard deadlines this week?</span>
+      <span class="field-hint">the plan works backward to make sure you're ready in time.</span>
+      <div id="checkin-deadlines">
+        <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px;">
+          <input type="text" class="dl-task" placeholder="e.g. deliver client files" style="flex:1;" />
+          <select class="dl-day" style="width:90px;padding:10px 8px;border:1px solid var(--border-mid);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-card);color:var(--text-mid);font-family:DM Sans,sans-serif;">
+            <option value="">day</option>
+            <option>Mon</option><option>Tue</option><option>Wed</option>
+            <option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option>
+          </select>
+          <button class="icon-btn" onclick="this.parentElement.remove()">×</button>
+        </div>
+      </div>
+      <button class="add-link" onclick="addDeadlineRow()">+ add deadline</button>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <span class="field-label">filming or editing this week?</span>
+      <div class="chips">
+        <div class="chip" data-group="filmweek" onclick="pickChip(this)">need to film</div>
+        <div class="chip" data-group="filmweek" onclick="pickChip(this)">need to edit</div>
+        <div class="chip" data-group="filmweek" onclick="pickChip(this)">both</div>
+        <div class="chip" data-group="filmweek" onclick="pickChip(this)">neither</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="buildWeek()">build my week ✦</button>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  LOADING SCREEN                           -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-loading">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <p class="loading-msg" id="loading-msg">building your week...</p>
+    <p class="loading-sub">one thing at a time. we've got this.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  RESULT SCREEN                            -->
+<!-- ══════════════════════════════════════════ -->
+<div class="screen" id="screen-result">
+  <div class="brand">Built for My Brain</div>
+  <h1>your <em>week</em></h1>
+
+  <div id="rollover-banner" style="display:none;" class="rollover-banner">
+    📋 <strong>carried forward:</strong> <span id="rollover-text"></span><br>
+    <span style="font-size:11px;color:var(--text-faint);">it's in your catch-up day. no guilt — just pick it up when you get there.</span>
+  </div>
+
+  <div class="result-pill" id="result-pill">⚡ solid week</div>
+  <p class="result-summary" id="result-summary"></p>
+
+  <div class="week-grid" id="week-grid"></div>
+
+  <div class="tip-box" id="tip-box"></div>
+
+  <div class="divider"></div>
+  <div class="btn-row">
+    <button class="btn btn-ghost btn-sm" onclick="newWeek()">plan next week</button>
+    <button class="btn btn-sm" onclick="window.print()">print</button>
+  </div>
+
+  <p class="footer">Built for My Brain — free tools for ADHD creatives.<br>
+  made by <a href="https://kelseynocek.com">Kelsey Nocek</a> ·
+  <span class="profile-edit" onclick="showSetup()" style="cursor:pointer;">edit profile</span></p>
+</div>
+
+</div><!-- /container -->
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const ALL_DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const PROFILE_KEY = 'bfmb_profile_v3';
+const WEEK_KEY = 'bfmb_week_v3';
+const SETUP_DRAFT_KEY = 'bfmb_setup_draft_v3';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let profile = null;
+let setupCreator = null;
+let weekState = { energy: null, priority: '', commitments: {}, deadlines: [], filmWeek: 'neither' };
+let lastWeekUnfinished = null;
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  buildDayChips('creative-days');
+  buildDayChips('admin-days');
+  loadProfile();
+  restoreSetupDraft();
+  checkLastWeek();
+  if (profile) showCheckin();
+  else show('screen-setup');
+});
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── SETUP ─────────────────────────────────────────────────────────────────────
+function buildDayChips(containerId) {
+  const wrap = document.getElementById(containerId);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'chips';
+  ALL_DAYS.forEach(d => {
+    const c = document.createElement('div');
+    c.className = 'chip';
+    c.dataset.group = containerId;
+    c.dataset.day = d;
+    c.textContent = d;
+    c.onclick = () => { c.classList.toggle('on'); autosaveSetup(); };
+    div.appendChild(c);
+  });
+  wrap.appendChild(div);
+}
+
+function setupUpdateProgress(step) {
+  const pcts = { 1: 25, 2: 50, 3: 75, 4: 95 };
+  document.getElementById('setup-bar').style.width = pcts[step] + '%';
+  document.getElementById('setup-label').textContent = `step ${step} of 4`;
+}
+
+function setupNext(n) {
+  if (n === 2) {
+    const name = document.getElementById('p-name').value.trim();
+    if (!name) { alert('add your name to get started'); return; }
+  }
+  document.querySelectorAll('#screen-setup .step').forEach(s => s.classList.remove('active'));
+  document.getElementById('setup-' + n).classList.add('active');
+  setupUpdateProgress(n);
+  autosaveSetup();
+  window.scrollTo(0, 0);
+}
+
+function pickCreator(el) {
+  document.querySelectorAll('[data-val="yes"],[data-val="no"]').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  setupCreator = el.dataset.val;
+  document.getElementById('creator-fields').style.display = setupCreator === 'yes' ? 'block' : 'none';
+  autosaveSetup();
+}
+
+function addBucket() {
+  const list = document.getElementById('setup-buckets');
+  if (list.children.length >= 5) { alert('5 buckets max — fewer is genuinely better for ADHD'); return; }
+  const div = document.createElement('div');
+  div.className = 'bucket-block';
+  div.innerHTML = `
+    <div class="bucket-row">
+      <input type="text" class="bucket-input" placeholder="e.g. content creation, photography..." oninput="autosaveSetup()" />
+      <button class="icon-btn" onclick="removeBucket(this)">×</button>
+    </div>
+    <input type="text" class="bucket-context" placeholder="what's currently happening here? e.g. have a client deliverable due, just starting, wrapping up" oninput="autosaveSetup()" style="margin-bottom:12px;" />
+  `;
+  list.appendChild(div);
+}
+
+function removeBucket(btn) {
+  const list = document.getElementById('setup-buckets');
+  if (list.children.length <= 1) return;
+  btn.closest('.bucket-block').remove();
+  autosaveSetup();
+}
+
+function pickChip(el) {
+  const group = el.dataset.group;
+  if (!group) return;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  autosaveSetup();
+}
+
+function pickEnergy(el) {
+  document.querySelectorAll('.energy-opt').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  weekState.energy = el.dataset.val;
+}
+
+// ── AUTOSAVE SETUP DRAFT ──────────────────────────────────────────────────────
+function autosaveSetup() {
+  try {
+    const draft = {
+      name: document.getElementById('p-name')?.value || '',
+      nonneg: document.getElementById('p-nonneg')?.value || '',
+      protect: document.getElementById('p-protect')?.value || '',
+      extra: document.getElementById('p-extra')?.value || '',
+      buckets: [...document.querySelectorAll('.bucket-input')].map(i => i.value),
+      bucketContexts: [...document.querySelectorAll('.bucket-context')].map(i => i.value),
+      isCreator: setupCreator,
+      creativeDays: [...document.querySelectorAll('#creative-days .chip.on')].map(c => c.dataset.day),
+      adminDays: [...document.querySelectorAll('#admin-days .chip.on')].map(c => c.dataset.day),
+      filmtime: document.querySelector('[data-group="filmtime"].on')?.textContent || '',
+      edittime: document.querySelector('[data-group="edittime"].on')?.textContent || '',
+      besttime: document.querySelector('[data-group="besttime"].on')?.textContent || '',
+    };
+    localStorage.setItem(SETUP_DRAFT_KEY, JSON.stringify(draft));
+  } catch(e) {}
+}
+
+function restoreSetupDraft() {
+  try {
+    const raw = localStorage.getItem(SETUP_DRAFT_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.name) document.getElementById('p-name').value = d.name;
+    if (d.nonneg) document.getElementById('p-nonneg').value = d.nonneg;
+    if (d.protect) document.getElementById('p-protect').value = d.protect;
+    if (d.extra) document.getElementById('p-extra').value = d.extra;
+    if (d.buckets) {
+      const list = document.getElementById('setup-buckets');
+      list.innerHTML = '';
+      d.buckets.forEach((b, i) => {
+        const div = document.createElement('div');
+        div.className = 'bucket-block';
+        div.innerHTML = `
+          <div class="bucket-row">
+            <input type="text" class="bucket-input" value="${b}" oninput="autosaveSetup()" />
+            <button class="icon-btn" onclick="removeBucket(this)">×</button>
+          </div>
+          <input type="text" class="bucket-context" value="${(d.bucketContexts && d.bucketContexts[i]) || ''}" placeholder="what's happening in this right now?" oninput="autosaveSetup()" style="margin-bottom:12px;" />
+        `;
+        list.appendChild(div);
+      });
+    }
+    if (d.isCreator) {
+      setupCreator = d.isCreator;
+      const chip = document.querySelector(`[data-val="${d.isCreator}"]`);
+      if (chip) { chip.classList.add('on'); }
+      if (d.isCreator === 'yes') document.getElementById('creator-fields').style.display = 'block';
+    }
+    ['filmtime','edittime','besttime'].forEach(key => {
+      if (d[key]) {
+        const chip = [...document.querySelectorAll(`[data-group="${key}"]`)].find(c => c.textContent === d[key]);
+        if (chip) chip.classList.add('on');
+      }
+    });
+    if (d.creativeDays) d.creativeDays.forEach(day => {
+      const chip = document.querySelector(`#creative-days [data-day="${day}"]`);
+      if (chip) chip.classList.add('on');
+    });
+    if (d.adminDays) d.adminDays.forEach(day => {
+      const chip = document.querySelector(`#admin-days [data-day="${day}"]`);
+      if (chip) chip.classList.add('on');
+    });
+  } catch(e) {}
+}
+
+function saveProfile() {
+  const name = document.getElementById('p-name').value.trim();
+  if (!name) { alert('add your name'); return; }
+  const buckets = [...document.querySelectorAll('.bucket-input')].map(i => i.value.trim()).filter(Boolean);
+  const bucketContexts = [...document.querySelectorAll('.bucket-context')].map(i => i.value.trim());
+  profile = {
+    name,
+    buckets: buckets.length ? buckets : ['your work'],
+    bucketContexts,
+    nonNeg: document.getElementById('p-nonneg').value.trim(),
+    isCreator: setupCreator === 'yes',
+    filmTime: document.querySelector('[data-group="filmtime"].on')?.textContent || 'half a day',
+    editTime: document.querySelector('[data-group="edittime"].on')?.textContent || '1 to 3 hours',
+    creativeDays: [...document.querySelectorAll('#creative-days .chip.on')].map(c => c.dataset.day),
+    adminDays: [...document.querySelectorAll('#admin-days .chip.on')].map(c => c.dataset.day),
+    bestTime: document.querySelector('[data-group="besttime"].on')?.textContent || 'mornings',
+    protect: document.getElementById('p-protect').value.trim(),
+    extra: document.getElementById('p-extra').value.trim(),
+  };
+  try {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    localStorage.removeItem(SETUP_DRAFT_KEY);
+  } catch(e) {}
+  showCheckin();
+}
+
+function loadProfile() {
+  try {
+    const r = localStorage.getItem(PROFILE_KEY);
+    if (r) profile = JSON.parse(r);
+  } catch(e) {}
+}
+
+function checkLastWeek() {
+  try {
+    const r = localStorage.getItem(WEEK_KEY);
+    if (r) {
+      const d = JSON.parse(r);
+      if (d.unfinished) lastWeekUnfinished = d.unfinished;
+    }
+  } catch(e) {}
+}
+
+// ── CHECK-IN ──────────────────────────────────────────────────────────────────
+function showCheckin() {
+  if (!profile) { show('screen-setup'); return; }
+  document.getElementById('checkin-name').textContent = profile.name;
+  buildCheckinDays();
+  show('screen-checkin');
+}
+
+function showSetup() {
+  show('screen-setup');
+  document.querySelectorAll('#screen-setup .step').forEach(s => s.classList.remove('active'));
+  document.getElementById('setup-1').classList.add('active');
+  setupUpdateProgress(1);
+  if (profile) {
+    document.getElementById('p-name').value = profile.name || '';
+    document.getElementById('p-nonneg').value = profile.nonNeg || '';
+    document.getElementById('p-protect').value = profile.protect || '';
+    document.getElementById('p-extra').value = profile.extra || '';
+    const list = document.getElementById('setup-buckets');
+    list.innerHTML = '';
+    (profile.buckets || []).forEach((b, i) => {
+      const div = document.createElement('div');
+      div.className = 'bucket-block';
+      div.innerHTML = `
+        <div class="bucket-row">
+          <input type="text" class="bucket-input" value="${b}" oninput="autosaveSetup()" />
+          <button class="icon-btn" onclick="removeBucket(this)">×</button>
+        </div>
+        <input type="text" class="bucket-context" value="${(profile.bucketContexts && profile.bucketContexts[i]) || ''}" placeholder="what's happening in this right now?" oninput="autosaveSetup()" style="margin-bottom:12px;" />
+      `;
+      list.appendChild(div);
+    });
+  }
+}
+
+function buildCheckinDays() {
+  const wrap = document.getElementById('checkin-days');
+  wrap.innerHTML = '';
+  ALL_DAYS.forEach(day => {
+    weekState.commitments[day] = { type: 'free', label: '' };
+    const row = document.createElement('div');
+    row.className = 'day-row';
+    row.innerHTML = `
+      <div class="day-row-header">
+        <span class="day-row-name">${day}</span>
+        <div class="day-row-chips">
+          <div class="day-mini-chip on" data-day="${day}" data-type="free" onclick="setDayType(this)">free</div>
+          <div class="day-mini-chip rest" data-day="${day}" data-type="rest" onclick="setDayType(this)">rest</div>
+          <div class="day-mini-chip commitment" data-day="${day}" data-type="commitment" onclick="setDayType(this)">commitment</div>
+        </div>
+      </div>
+      <div id="day-commit-${day}" style="display:none;margin-top:5px;">
+        <input type="text" placeholder="what is it? e.g. caregiving, kids, day job, appointment..." oninput="weekState.commitments['${day}'].label = this.value" />
+      </div>
+    `;
+    wrap.appendChild(row);
+  });
+}
+
+function setDayType(el) {
+  const day = el.dataset.day;
+  el.closest('.day-row').querySelectorAll('.day-mini-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  weekState.commitments[day] = { type: el.dataset.type, label: weekState.commitments[day]?.label || '' };
+  const ci = document.getElementById('day-commit-' + day);
+  if (ci) ci.style.display = el.dataset.type === 'commitment' ? 'block' : 'none';
+}
+
+function toggleDetails(el) {
+  const icon = el.querySelector('.detail-toggle-icon');
+  const section = document.getElementById('detail-section');
+  const isOpen = section.classList.contains('open');
+  section.classList.toggle('open', !isOpen);
+  icon.classList.toggle('open', !isOpen);
+}
+
+function addDeadlineRow() {
+  const div = document.createElement('div');
+  div.style = 'display:flex;gap:7px;align-items:center;margin-bottom:7px;';
+  div.innerHTML = `<input type="text" class="dl-task" placeholder="e.g. submit invoice" style="flex:1;" /><select class="dl-day" style="width:90px;padding:10px 8px;border:1px solid var(--border-mid);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-card);color:var(--text-mid);font-family:DM Sans,sans-serif;"><option value="">day</option><option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option></select><button class="icon-btn" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById('checkin-deadlines').appendChild(div);
+}
+
+// ── DATE HELPERS ──────────────────────────────────────────────────────────────
+function getWeekInfo() {
+  const today = new Date();
+  const dow = today.getDay();
+  const mondayOffset = dow === 0 ? -6 : 1 - dow;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+  const todayIdx = dow === 0 ? 6 : dow - 1;
+  const weekDates = ALL_DAYS.map((d, i) => {
+    const dt = new Date(monday);
+    dt.setDate(monday.getDate() + i);
+    return {
+      day: d,
+      date: dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      isToday: dt.toDateString() === today.toDateString(),
+      isPast: i < todayIdx,
+      idx: i
+    };
+  });
+  return { todayIdx, isMidWeek: todayIdx > 0, weekDates };
+}
+
+// ── BUILD WEEK ─────────────────────────────────────────────────────────────────
+async function buildWeek() {
+  if (!weekState.energy) { alert('pick your energy level first'); return; }
+  weekState.priority = document.getElementById('ci-priority').value.trim();
+  weekState.weekContext = document.getElementById('ci-context')?.value.trim() || '';
+  weekState.deadlines = [...document.querySelectorAll('.dl-task')].map((inp, i) => ({
+    task: inp.value.trim(),
+    day: document.querySelectorAll('.dl-day')[i]?.value
+  })).filter(d => d.task && d.day);
+  weekState.filmWeek = document.querySelector('[data-group="filmweek"].on')?.textContent || 'neither';
+
+  show('screen-loading');
+  const msgs = ['building your week...', 'thinking through your days...', 'one thing at a time...', 'almost there...'];
+  let mi = 0;
+  const interval = setInterval(() => {
+    document.getElementById('loading-msg').textContent = msgs[mi++ % msgs.length];
+  }, 1800);
+
+  const { todayIdx, isMidWeek, weekDates } = getWeekInfo();
+  const planDays = isMidWeek ? ALL_DAYS.filter((_, i) => i >= todayIdx) : ALL_DAYS;
+
+  const commitSummary = planDays.map(d => {
+    const c = weekState.commitments[d];
+    if (!c || c.type === 'free') return d + ': free';
+    if (c.type === 'rest') return d + ': rest day';
+    return d + ': commitment (' + (c.label || 'unspecified') + ')';
+  }).join(', ');
+
+  const prompt = `You are a compassionate ADHD productivity coach. Build a weekly plan.
+
+PROFILE:
+Name: ${profile.name}
+Work buckets and current status:
+${profile.buckets.map((b, i) => `- ${b}${profile.bucketContexts && profile.bucketContexts[i] ? ': ' + profile.bucketContexts[i] : ''}`).join('\n')}
+Daily non-negotiables: ${profile.nonNeg || 'none'}
+Is content creator: ${profile.isCreator}
+Filming takes: ${profile.filmTime}
+Editing takes: ${profile.editTime}
+Creative brain days: ${(profile.creativeDays || []).join(', ') || 'not set'}
+Admin brain days: ${(profile.adminDays || []).join(', ') || 'not set'}
+Best work time: ${profile.bestTime}
+Always protects: ${profile.protect || 'not set'}
+Other context: ${profile.extra || 'none'}
+
+THIS WEEK:
+Energy: ${weekState.energy}
+Top priority: ${weekState.priority || 'not set'}
+Extra context for this week: ${weekState.weekContext || 'none'}
+Film or edit needs: ${weekState.filmWeek}
+Deadlines: ${weekState.deadlines.length ? weekState.deadlines.map(d => d.task + ' by ' + d.day).join(', ') : 'none'}
+Days to plan: ${planDays.join(', ')}
+Day types: ${commitSummary}
+Unfinished from last week: ${lastWeekUnfinished || 'none'}
+${isMidWeek ? 'Starting mid-week on ' + ALL_DAYS[todayIdx] + '. Only plan ' + planDays.length + ' days. No mention of past days.' : ''}
+
+STRICT RULES:
+1. NEVER film and edit same day
+2. Film on creative brain days when possible
+3. Edit on separate day from filming
+4. Include one catch-up day as buffer (Thu or Fri if available)
+5. All task estimates get 50% extra time added automatically
+6. Low energy = ifEnergy is empty string always
+7. Deadlines: plan task one day before due
+8. Match day types to brain patterns
+9. Rest days: only restMessage, all other fields empty string
+10. Commitment days: minimal tasks only
+11. Keep all string values under 100 chars
+12. No apostrophes or quotes inside string values
+13. microStart must be tiny - the smallest possible first action e.g. open one tab, write one subject line, film one clip
+14. timeEst must be realistic with 50% buffer added e.g. filming half day becomes most of a day
+
+Return ONLY a raw JSON array of ${planDays.length} objects for days: ${planDays.join(', ')}
+
+Each object has exactly these fields (all strings or booleans, no nested objects):
+day, type (work/rest/commitment/catchup), commitmentLabel, hasDeadline (bool), isFilmDay (bool), isEditDay (bool), first, microStart, then, ifEnergy, timeEst, bufferNote, restMessage, catchupNote
+
+No markdown, no explanation, raw JSON only.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    clearInterval(interval);
+
+    let raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const start = raw.indexOf('[');
+    const end = raw.lastIndexOf(']');
+    if (start === -1 || end === -1) throw new Error('no JSON array');
+    raw = raw.slice(start, end + 1);
+
+    let plan;
+    try { plan = JSON.parse(raw); }
+    catch {
+      raw = raw.replace(/[\u2018\u2019]/g, "").replace(/[\u201C\u201D]/g, "").replace(/\n/g, ' ');
+      plan = JSON.parse(raw);
+    }
+
+    renderWeek(plan, weekDates, todayIdx, isMidWeek);
+  } catch(err) {
+    clearInterval(interval);
+    console.error(err);
+    document.getElementById('loading-msg').innerHTML = 'something went wrong. <button onclick="buildWeek()" style="margin-top:12px;display:block;padding:10px 20px;border-radius:8px;border:none;background:var(--sage);color:white;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif;">try again</button>';
+  }
+}
+
+// ── RENDER WEEK ───────────────────────────────────────────────────────────────
+function renderWeek(plan, weekDates, todayIdx, isMidWeek) {
+  if (lastWeekUnfinished) {
+    document.getElementById('rollover-text').textContent = lastWeekUnfinished;
+    document.getElementById('rollover-banner').style.display = 'block';
+  }
+
+  const energyPills = { low: '🪫 low energy week', medium: '⚡ solid week', high: '🔥 high energy week' };
+  document.getElementById('result-pill').textContent = energyPills[weekState.energy];
+
+  const summaries = {
+    low: 'one thing per day. that is enough. <strong>protect your non-negotiables.</strong>',
+    medium: 'follow the sequence. <strong>finish the first thing before opening anything else.</strong>',
+    high: '<strong>do the hardest thing first</strong> while your brain is sharp.'
+  };
+  document.getElementById('result-summary').innerHTML =
+    summaries[weekState.energy] +
+    (isMidWeek ? ' starting ' + ALL_DAYS[todayIdx] + ' — no guilt about days already gone.' : '') +
+    (weekState.priority ? ' win this week: <strong>' + weekState.priority + '</strong>' : '');
+
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+
+  // Past days — grayed out
+  if (isMidWeek) {
+    ALL_DAYS.filter((_, i) => i < todayIdx).forEach((d, i) => {
+      const di = weekDates[i] || {};
+      const card = document.createElement('div');
+      card.className = 'day-card is-past';
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="card-left"><span class="card-day">${d}</span></div>
+          <span class="card-date">${di.date || ''}</span>
+        </div>
+        <div class="card-body"><p style="font-size:13px;color:var(--text-faint);font-style:italic;">already behind you.</p></div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // Active days
+  plan.forEach((p, i) => {
+    const dayIdx = isMidWeek ? todayIdx + i : i;
+    const di = weekDates[dayIdx] || {};
+    const card = document.createElement('div');
+    const typeClass = { rest: 'is-rest', commitment: 'is-commitment', catchup: 'is-catchup' }[p.type] || '';
+    card.className = `day-card ${typeClass} ${di.isToday ? 'is-today' : ''}`;
+    card.style.animationDelay = (i * 0.05) + 's';
+
+    // Max 2 badges
+    const allBadges = [];
+    if (di.isToday) allBadges.push(`<span class="badge badge-today">today</span>`);
+    if (p.type === 'rest') allBadges.push(`<span class="badge badge-rest">rest</span>`);
+    if (p.type === 'commitment') allBadges.push(`<span class="badge badge-commitment">${p.commitmentLabel || 'commitment'}</span>`);
+    if (p.type === 'catchup') allBadges.push(`<span class="badge badge-catchup">catch-up</span>`);
+    if (p.hasDeadline) allBadges.push(`<span class="badge badge-deadline">deadline</span>`);
+    if (p.isFilmDay) allBadges.push(`<span class="badge badge-film">📹 film</span>`);
+    if (p.isEditDay) allBadges.push(`<span class="badge badge-edit">✂️ edit</span>`);
+    const badges = allBadges.slice(0, 2).join('');
+
+    let bodyHTML = '';
+    if (p.type === 'rest') {
+      bodyHTML = `<p class="rest-msg">${p.restMessage || 'rest. recharge. do whatever fills you up.'}</p>`;
+    } else if (p.type === 'catchup') {
+      bodyHTML = `
+        <div class="seq">
+          <span class="seq-label first">catch-up day</span>
+          <div class="seq-task">${p.catchupNote || 'anything that did not get done this week. pick up what matters most.'}</div>
+        </div>
+        ${p.first ? `<div class="seq"><span class="seq-label then">if nothing rolled over</span><div class="seq-task dim">${p.first}</div></div>` : ''}
+        ${p.bufferNote ? `<p class="buffer-note">⏱ ${p.bufferNote}</p>` : ''}
+      `;
+    } else {
+      bodyHTML = `
+        ${p.first ? `
+          <div class="seq">
+            <span class="seq-label first">▸ first</span>
+            <div class="seq-task">${p.first}</div>
+            ${p.microStart ? `<div class="micro-start"><span class="micro-label">tiny start</span><div class="micro-task">${p.microStart}</div></div>` : ''}
+            ${p.timeEst ? `<div class="time-est">⏱ ${p.timeEst}</div>` : ''}
+          </div>` : ''}
+        ${p.then ? `<div class="seq"><span class="seq-label then">▸ then</span><div class="seq-task dim">${p.then}</div></div>` : ''}
+        ${p.ifEnergy && weekState.energy !== 'low' ? `<div class="seq"><span class="seq-label if-energy">▸ if energy allows</span><div class="seq-task very-dim">${p.ifEnergy}</div></div>` : ''}
+        ${p.bufferNote ? `<p class="buffer-note">⏱ ${p.bufferNote}</p>` : ''}
+        <div class="stuck-wrap">
+          <button class="stuck-btn" onclick="getStuckHelp(this, '${p.first?.replace(/'/g,'') || ''}', '${p.microStart?.replace(/'/g,'') || ''}')">
+            🧱 I can not start this — give me something smaller
+          </button>
+        </div>
+      `;
+    }
+
+    const doneSection = `
+      <div class="done-section">
+        <span class="done-label">what did you finish today?</span>
+        <div class="done-row">
+          <div class="done-check" onclick="toggleCheck(this)"></div>
+          <textarea class="done-input" placeholder="log even small wins — they all count..." oninput="saveDone('${p.day}', this.value)"></textarea>
+        </div>
+      </div>
+    `;
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-left">
+          ${di.isToday ? '<div class="today-dot"></div>' : ''}
+          <span class="card-day">${p.day}</span>
+          ${badges}
+        </div>
+        <span class="card-date">${di.date || ''}</span>
+      </div>
+      <div class="card-body">${bodyHTML}${doneSection}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const tips = {
+    low: `<strong>low energy:</strong> lower the bar. first does not mean finishing — it means opening the doc, sending one email, filming one clip. start tiny. momentum follows.`,
+    medium: `<strong>ADHD tip:</strong> read only the first task. do that one thing. close everything else. the rest follows naturally.`,
+    high: `<strong>high energy:</strong> batch your hardest work in the morning. do not let the first hour get eaten by scrolling or emails.`
+  };
+  document.getElementById('tip-box').innerHTML = `<span class="tip-title">this week</span><p>${tips[weekState.energy]}</p>`;
+
+  show('screen-result');
+}
+
+// ── STUCK HELP ────────────────────────────────────────────────────────────────
+async function getStuckHelp(btn, firstTask, microStart) {
+  const wrap = btn.closest('.stuck-wrap');
+  wrap.innerHTML = '<p class="stuck-loading">finding the smallest possible step...</p>';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        messages: [{
+          role: 'user',
+          content: `An ADHD person cannot start this task: "${firstTask}". The micro start was: "${microStart}". They are still stuck. Give them ONE single action so tiny it takes under 2 minutes and requires almost no executive function to begin. Be specific. Under 60 words. No preamble, just the action.`
+        }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
+    wrap.innerHTML = `<div class="stuck-result">🌱 ${text}</div>`;
+  } catch(e) {
+    wrap.innerHTML = `<div class="stuck-result">open one tab. just one. that is all.</div>`;
+  }
+}
+
+// ── DONE / CHECK ──────────────────────────────────────────────────────────────
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+  if (el.classList.contains('checked')) {
+    el.style.transform = 'scale(1.15)';
+    setTimeout(() => el.style.transform = 'scale(1)', 200);
+  }
+}
+
+function saveDone(day, value) {
+  try {
+    const existing = JSON.parse(localStorage.getItem(WEEK_KEY) || '{}');
+    existing[day] = value;
+    localStorage.setItem(WEEK_KEY, JSON.stringify(existing));
+  } catch(e) {}
+}
+
+// ── NEW WEEK ──────────────────────────────────────────────────────────────────
+function newWeek() {
+  try {
+    const existing = JSON.parse(localStorage.getItem(WEEK_KEY) || '{}');
+    const done = Object.values(existing).filter(Boolean);
+    localStorage.setItem(WEEK_KEY, JSON.stringify({}));
+    lastWeekUnfinished = null;
+  } catch(e) {}
+  weekState = { energy: null, priority: '', weekContext: '', commitments: {}, deadlines: [], filmWeek: 'neither' };
+  document.querySelectorAll('.energy-opt').forEach(e => e.classList.remove('on'));
+  document.querySelectorAll('[data-group="filmweek"]').forEach(c => c.classList.remove('on'));
+  document.getElementById('ci-priority').value = '';
+  const ciCtx = document.getElementById('ci-context');
+  if (ciCtx) ciCtx.value = '';
+  lastWeekUnfinished = null;
+  showCheckin();
+}
+</script>
+</body>
+</html>
