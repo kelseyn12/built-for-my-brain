@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Built for My Brain — Pitch Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage: #4a7c59;
+  --sage-mid: #3d6b4a;
+  --sage-light: rgba(74,124,89,0.1);
+  --sage-border: rgba(74,124,89,0.25);
+  --teal: #3d7a72;
+  --teal-light: rgba(61,122,114,0.08);
+  --teal-border: rgba(61,122,114,0.22);
+  --slate: #4a6b8a;
+  --slate-light: rgba(74,107,138,0.1);
+  --amber: #8a6a3a;
+  --amber-light: rgba(138,106,58,0.1);
+  --amber-border: rgba(138,106,58,0.25);
+  --red: #c0392b;
+  --red-light: rgba(192,57,43,0.08);
+  --green: #2d7a4a;
+  --green-light: rgba(45,122,74,0.1);
+  --bg: #f4f2ee;
+  --bg-card: #ffffff;
+  --bg-soft: #eeecea;
+  --bg-softer: #e8e5e0;
+  --text: #2c3330;
+  --text-mid: #5a6b62;
+  --text-muted: #8a9e94;
+  --text-faint: #b8c5be;
+  --border: rgba(74,100,88,0.1);
+  --border-mid: rgba(74,100,88,0.18);
+  --shadow: 0 2px 8px rgba(44,51,48,0.07);
+  --shadow-sm: 0 1px 3px rgba(44,51,48,0.06);
+  --shadow-lg: 0 4px 16px rgba(44,51,48,0.1);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 1.5rem 1.25rem 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-faint); text-decoration: none;
+  margin-bottom: 1.25rem; transition: color 0.15s;
+}
+.back-link:hover { color: var(--sage); }
+
+.brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--sage); margin-bottom: 6px; }
+
+h1 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; line-height: 1.15; color: var(--text); }
+h1 em { font-style: italic; color: var(--sage); }
+
+/* ── TOP BAR ── */
+.top-bar {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;
+}
+.top-bar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ── GOAL BAR ── */
+.goal-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+.goal-bar-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.goal-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.goal-count { font-size: 13px; color: var(--text-muted); }
+.goal-count strong { color: var(--sage); font-weight: 600; }
+.goal-track { height: 6px; background: var(--bg-softer); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.goal-fill { height: 100%; background: linear-gradient(90deg, var(--sage), var(--teal)); border-radius: 3px; transition: width 0.4s ease; }
+.goal-meta { display: flex; align-items: center; justify-content: space-between; }
+.goal-sub { font-size: 11px; color: var(--text-faint); }
+.goal-edit { font-size: 11px; color: var(--sage); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.25rem;
+}
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 10px; text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); line-height: 1; margin-bottom: 3px; }
+.stat-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ── FOLLOW-UP ALERT ── */
+.followup-alert {
+  background: var(--amber-light); border: 1px solid var(--amber-border);
+  border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.followup-alert-text { font-size: 13px; color: var(--amber); flex: 1; }
+.followup-alert-text strong { font-weight: 600; }
+
+/* ── BUTTONS ── */
+.btn {
+  padding: 10px 18px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm);
+  cursor: pointer; border: none; background: var(--sage); color: #fff;
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(74,124,89,0.2); white-space: nowrap;
+}
+.btn:hover { background: var(--sage-mid); }
+.btn:active { transform: scale(0.97); }
+.btn-ghost {
+  background: var(--bg-card); color: var(--text-mid); border: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); background: var(--sage-light); }
+.btn-ghost.active { background: var(--sage-light); border-color: var(--sage-border); color: var(--sage); }
+.btn-icon { padding: 8px 12px; }
+
+/* ── VIEW TOGGLE ── */
+.view-toggle { display: flex; gap: 4px; background: var(--bg-soft); border-radius: var(--radius-sm); padding: 3px; }
+.view-btn {
+  padding: 6px 12px; font-size: 12px; font-weight: 500; border-radius: 6px;
+  cursor: pointer; border: none; background: transparent; color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.view-btn.active { background: var(--bg-card); color: var(--sage); box-shadow: var(--shadow-sm); font-weight: 600; }
+
+/* ── KANBAN ── */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.kanban-col { background: var(--bg-soft); border-radius: var(--radius); padding: 12px; }
+.kanban-col-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.kanban-col-title { font-size: 12px; font-weight: 600; color: var(--text-mid); }
+.kanban-col-count {
+  font-size: 11px; font-weight: 700; color: #fff; background: var(--text-faint);
+  border-radius: 99px; padding: 1px 7px; min-width: 20px; text-align: center;
+}
+.kanban-cards { display: flex; flex-direction: column; gap: 8px; min-height: 40px; }
+
+/* ── LIST VIEW ── */
+.list-view { display: flex; flex-direction: column; gap: 8px; }
+
+/* ── PITCH CARD ── */
+.pitch-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  box-shadow: var(--shadow-sm); transition: box-shadow 0.15s;
+  cursor: pointer; position: relative;
+}
+.pitch-card:hover { box-shadow: var(--shadow); }
+.pitch-card.stale { border-color: var(--amber-border); }
+.pitch-card.won { border-color: rgba(45,122,74,0.3); }
+.pitch-card.passed { opacity: 0.5; }
+
+.pitch-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.pitch-brand { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; flex: 1; }
+.pitch-status-badge {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  border-radius: 99px; padding: 2px 8px; white-space: nowrap; flex-shrink: 0;
+}
+.pitch-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pitch-meta-item { font-size: 11px; color: var(--text-faint); display: flex; align-items: center; gap: 3px; }
+.pitch-niche { font-size: 11px; color: var(--text-muted); }
+.pitch-stale-flag { font-size: 10px; color: var(--amber); font-weight: 600; }
+
+/* STATUS COLORS */
+.status-sent { background: var(--slate-light); color: var(--slate); border: 1px solid rgba(74,107,138,0.2); }
+.status-followed { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+.status-responded { background: var(--sage-light); color: var(--sage); border: 1px solid var(--sage-border); }
+.status-negotiating { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal-border); }
+.status-won { background: var(--green-light); color: var(--green); border: 1px solid rgba(45,122,74,0.25); }
+.status-passed { background: var(--red-light); color: var(--red); border: 1px solid rgba(192,57,43,0.2); }
+
+/* KANBAN STATUS HEADER COLORS */
+.col-sent .kanban-col-count { background: var(--slate); }
+.col-followed .kanban-col-count { background: var(--amber); }
+.col-responded .kanban-col-count { background: var(--sage); }
+.col-negotiating .kanban-col-count { background: var(--teal); }
+.col-won .kanban-col-count { background: var(--green); }
+.col-passed .kanban-col-count { background: var(--red); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(44,51,48,0.4);
+  backdrop-filter: blur(4px); z-index: 100;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: var(--bg-card); border-radius: var(--radius) var(--radius) 0 0;
+  padding: 1.5rem 1.25rem 2rem; width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto;
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-handle { width: 36px; height: 4px; background: var(--bg-softer); border-radius: 2px; margin: 0 auto 1.25rem; }
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 1.25rem; color: var(--text); }
+.modal-title em { font-style: italic; color: var(--sage); }
+
+.field { margin-bottom: 1rem; }
+.field-label { font-size: 13px; font-weight: 500; color: var(--text); display: block; margin-bottom: 5px; }
+.field-hint { font-size: 11px; color: var(--text-faint); display: block; margin-bottom: 6px; }
+
+input[type=text], textarea, select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm); font-size: 14px; background: var(--bg-card);
+  color: var(--text); font-family: 'DM Sans', sans-serif; transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--sage); }
+input::placeholder, textarea::placeholder { color: var(--text-faint); }
+textarea { min-height: 72px; resize: vertical; line-height: 1.5; }
+select { cursor: pointer; -webkit-appearance: none; }
+
+.modal-actions { display: flex; gap: 8px; margin-top: 1.25rem; flex-wrap: wrap; }
+.modal-actions .btn { flex: 1; }
+.btn-danger { background: var(--red); color: #fff; box-shadow: none; }
+.btn-danger:hover { background: #a93226; }
+
+/* STATUS QUICK-SELECT */
+.status-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.status-pill {
+  padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+  font-family: 'DM Sans', sans-serif;
+}
+.status-pill:hover { opacity: 0.8; }
+.status-pill.selected { box-shadow: 0 0 0 2px var(--text); }
+
+/* METHOD PILLS */
+.method-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.method-pill {
+  padding: 6px 12px; border-radius: 99px; font-size: 12px;
+  cursor: pointer; transition: all 0.15s; border: 1px solid var(--border-mid);
+  background: var(--bg-card); color: var(--text-muted); font-family: 'DM Sans', sans-serif;
+}
+.method-pill.on { background: var(--sage-light); border-color: var(--sage-border); color: var(--sage); font-weight: 500; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+.empty-icon { font-size: 36px; margin-bottom: 10px; display: block; }
+.empty-title { font-size: 15px; font-weight: 500; color: var(--text-mid); margin-bottom: 6px; }
+.empty-sub { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+/* GOAL MODAL */
+.goal-modal-inner { display: flex; gap: 8px; align-items: center; }
+.goal-modal-inner input { flex: 1; }
+
+/* FOOTER */
+.footer { font-size: 11px; color: var(--text-faint); margin-top: 2rem; line-height: 1.65; }
+.footer a { color: var(--sage); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<a href="./index.html" class="back-link">← built for my brain</a>
+
+<div class="top-bar">
+  <div>
+    <div class="brand">Built for My Brain</div>
+    <h1>pitch <em>tracker</em></h1>
+  </div>
+  <div class="top-bar-right">
+    <div class="view-toggle">
+      <button class="view-btn active" id="btn-kanban" onclick="setView('kanban')">board</button>
+      <button class="view-btn" id="btn-list" onclick="setView('list')">list</button>
+    </div>
+    <button class="btn btn-ghost" onclick="exportCSV()">↓ export</button>
+    <button class="btn" onclick="openAddModal()">+ add pitch</button>
+  </div>
+</div>
+
+<!-- GOAL BAR -->
+<div class="goal-bar">
+  <div class="goal-bar-top">
+    <span class="goal-label">today's pitch goal</span>
+    <span class="goal-count"><strong id="goal-today-count">0</strong> of <span id="goal-target">25</span> sent today</span>
+  </div>
+  <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%"></div></div>
+  <div class="goal-meta" style="margin-bottom:10px;">
+    <span class="goal-sub" id="goal-sub">keep going — every pitch counts</span>
+    <span class="goal-edit" onclick="openGoalModal()">change goal</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <span style="font-size:12px;color:var(--text-muted);">quick log:</span>
+    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(1)">+1</button>
+    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(5)">+5</button>
+    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(10)">+10</button>
+    <span style="font-size:11px;color:var(--text-faint);">fill in details later with + add pitch</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row" id="stats-row"></div>
+
+<!-- FOLLOW-UP ALERT -->
+<div class="followup-alert" id="followup-alert" style="display:none;">
+  <span>⏰</span>
+  <span class="followup-alert-text"><strong id="followup-count">0</strong> pitches haven't had activity in 7+ days — time to follow up</span>
+  <button class="btn btn-ghost btn-icon" onclick="filterStale()" style="font-size:11px;padding:5px 10px;">show them</button>
+</div>
+
+<!-- KANBAN VIEW -->
+<div id="view-kanban">
+  <div class="kanban" id="kanban-board"></div>
+</div>
+
+<!-- LIST VIEW -->
+<div id="view-list" style="display:none;">
+  <div class="list-view" id="list-board"></div>
+</div>
+
+<!-- EMPTY STATE -->
+<div id="empty-state" class="empty-state" style="display:none;">
+  <span class="empty-icon">📬</span>
+  <div class="empty-title">no pitches yet</div>
+  <div class="empty-sub">add your first pitch to start tracking.<br>every brand deal starts with a send.</div>
+</div>
+
+<p class="footer" style="margin-top:2rem;">Built for My Brain — free tools for ADHD creatives.<br>
+made by <a href="https://kelseynocek.com">Kelsey Nocek</a><br>
+<span style="color:var(--text-faint);">your pitches are saved in this browser. use ↓ export regularly to back them up. don't clear your browser cache or switch browsers without exporting first.</span></p>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="modal" style="display:none;" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">new <em>pitch</em></div>
+
+    <div class="field">
+      <span class="field-label">brand name</span>
+      <input type="text" id="m-brand" placeholder="e.g. Big Agnes, Wilderdog, Patagonia" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">niche / category</span>
+      <input type="text" id="m-niche" placeholder="e.g. outdoor gear, adventure dog, travel" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">how did you reach out?</span>
+      <div class="method-pills">
+        <div class="method-pill" data-method="DM" onclick="pickMethod(this)">DM</div>
+        <div class="method-pill" data-method="Email" onclick="pickMethod(this)">Email</div>
+        <div class="method-pill" data-method="Popfly" onclick="pickMethod(this)">Popfly</div>
+        <div class="method-pill" data-method="Bento VA" onclick="pickMethod(this)">Bento VA</div>
+        <div class="method-pill" data-method="Other" onclick="pickMethod(this)">Other</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label">what did you pitch?</span>
+      <input type="text" id="m-what" placeholder="e.g. 3 video bundle, single reel, photo package" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">status</span>
+      <div class="status-pills">
+        <div class="status-pill status-sent selected" data-status="sent" onclick="pickStatus(this)">sent</div>
+        <div class="status-pill status-followed" data-status="followed" onclick="pickStatus(this)">followed up</div>
+        <div class="status-pill status-responded" data-status="responded" onclick="pickStatus(this)">responded</div>
+        <div class="status-pill status-negotiating" data-status="negotiating" onclick="pickStatus(this)">negotiating</div>
+        <div class="status-pill status-won" data-status="won" onclick="pickStatus(this)">won 🎉</div>
+        <div class="status-pill status-passed" data-status="passed" onclick="pickStatus(this)">passed</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label">notes</span>
+      <textarea id="m-notes" placeholder="anything worth remembering — their vibe, what they said, next steps..."></textarea>
+    </div>
+
+    <div class="modal-actions" id="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">cancel</button>
+      <button class="btn" onclick="savePitch()">save pitch</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOAL MODAL -->
+<div class="modal-overlay" id="goal-modal" style="display:none;" onclick="closeGoalModalOutside(event)">
+  <div class="modal" style="max-height:40vh;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">daily <em>goal</em></div>
+    <div class="field">
+      <span class="field-label">how many pitches do you want to send today?</span>
+      <div class="goal-modal-inner">
+        <input type="text" id="goal-input" placeholder="25" />
+        <button class="btn" onclick="saveGoal()">save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PITCHES_KEY = 'bfmb_pitches_v1';
+const GOAL_KEY = 'bfmb_pitch_goal_v1';
+const TODAY_KEY = 'bfmb_pitch_today_v1';
+
+let pitches = [];
+let dailyGoal = 25;
+let todayCount = 0;
+let currentView = 'kanban';
+let editingId = null;
+let selectedMethod = null;
+let selectedStatus = 'sent';
+let showingStale = false;
+
+const STATUSES = [
+  { key: 'sent', label: 'sent', cls: 'status-sent', colCls: 'col-sent' },
+  { key: 'followed', label: 'followed up', cls: 'status-followed', colCls: 'col-followed' },
+  { key: 'responded', label: 'responded', cls: 'status-responded', colCls: 'col-responded' },
+  { key: 'negotiating', label: 'negotiating', cls: 'status-negotiating', colCls: 'col-negotiating' },
+  { key: 'won', label: 'won 🎉', cls: 'status-won', colCls: 'col-won' },
+  { key: 'passed', label: 'passed', cls: 'status-passed', colCls: 'col-passed' },
+];
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  load();
+  render();
+});
+
+function load() {
+  try {
+    const p = localStorage.getItem(PITCHES_KEY);
+    if (p) pitches = JSON.parse(p);
+    const g = localStorage.getItem(GOAL_KEY);
+    if (g) dailyGoal = parseInt(g);
+
+    // Today count — reset daily
+    const td = localStorage.getItem(TODAY_KEY);
+    if (td) {
+      const d = JSON.parse(td);
+      const today = new Date().toDateString();
+      if (d.date === today) todayCount = d.count;
+      else { todayCount = 0; saveTodayCount(); }
+    }
+  } catch(e) {}
+}
+
+function save() {
+  try { localStorage.setItem(PITCHES_KEY, JSON.stringify(pitches)); } catch(e) {}
+}
+
+function saveTodayCount() {
+  try {
+    localStorage.setItem(TODAY_KEY, JSON.stringify({ date: new Date().toDateString(), count: todayCount }));
+  } catch(e) {}
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  renderStats();
+  renderGoalBar();
+  renderFollowupAlert();
+  if (currentView === 'kanban') renderKanban();
+  else renderList();
+}
+
+function renderStats() {
+  const total = pitches.length;
+  const active = pitches.filter(p => !['won','passed'].includes(p.status)).length;
+  const won = pitches.filter(p => p.status === 'won').length;
+  const responded = pitches.filter(p => ['responded','negotiating','won'].includes(p.status)).length;
+  const rate = total > 0 ? Math.round((responded / total) * 100) : 0;
+
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">total</div></div>
+    <div class="stat-card"><div class="stat-num">${active}</div><div class="stat-label">active</div></div>
+    <div class="stat-card"><div class="stat-num">${won}</div><div class="stat-label">won</div></div>
+    <div class="stat-card"><div class="stat-num">${rate}%</div><div class="stat-label">response</div></div>
+  `;
+}
+
+function renderGoalBar() {
+  const pct = Math.min(100, Math.round((todayCount / dailyGoal) * 100));
+  document.getElementById('goal-today-count').textContent = todayCount;
+  document.getElementById('goal-target').textContent = dailyGoal;
+  document.getElementById('goal-fill').style.width = pct + '%';
+
+  let sub = 'keep going — every pitch counts';
+  if (pct >= 100) sub = 'goal hit! 🎉 anything extra is a bonus';
+  else if (pct >= 75) sub = 'almost there — push through';
+  else if (pct >= 50) sub = 'halfway there — great momentum';
+  else if (pct >= 25) sub = 'good start — keep the energy up';
+  document.getElementById('goal-sub').textContent = sub;
+}
+
+function renderFollowupAlert() {
+  const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+  const stale = pitches.filter(p =>
+    ['sent','followed'].includes(p.status) &&
+    new Date(p.updatedAt || p.createdAt).getTime() < sevenDaysAgo
+  );
+  const alert = document.getElementById('followup-alert');
+  if (stale.length > 0) {
+    document.getElementById('followup-count').textContent = stale.length;
+    alert.style.display = 'flex';
+  } else {
+    alert.style.display = 'none';
+  }
+}
+
+function getStatusInfo(key) {
+  return STATUSES.find(s => s.key === key) || STATUSES[0];
+}
+
+function daysSince(dateStr) {
+  const d = new Date(dateStr);
+  const diff = Date.now() - d.getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+function isStale(pitch) {
+  const days = daysSince(pitch.updatedAt || pitch.createdAt);
+  return ['sent','followed'].includes(pitch.status) && days >= 7;
+}
+
+function makePitchCard(pitch, inKanban = false) {
+  const si = getStatusInfo(pitch.status);
+  const stale = isStale(pitch);
+  const days = daysSince(pitch.updatedAt || pitch.createdAt);
+
+  const card = document.createElement('div');
+  card.className = `pitch-card ${stale ? 'stale' : ''} ${pitch.status === 'won' ? 'won' : ''} ${pitch.status === 'passed' ? 'passed' : ''}`;
+  card.onclick = () => openEditModal(pitch.id);
+
+  card.innerHTML = `
+    <div class="pitch-card-top">
+      <div class="pitch-brand">${pitch.brand}</div>
+      <span class="pitch-status-badge ${si.cls}">${si.label}</span>
+    </div>
+    <div class="pitch-card-meta">
+      ${pitch.niche ? `<span class="pitch-niche">${pitch.niche}</span>` : ''}
+      ${pitch.method ? `<span class="pitch-meta-item">via ${pitch.method}</span>` : ''}
+      <span class="pitch-meta-item">${days === 0 ? 'today' : days + 'd ago'}</span>
+      ${stale ? `<span class="pitch-stale-flag">⏰ follow up</span>` : ''}
+    </div>
+    ${pitch.notes ? `<div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.4;">${pitch.notes.slice(0,80)}${pitch.notes.length > 80 ? '...' : ''}</div>` : ''}
+  `;
+  return card;
+}
+
+function renderKanban() {
+  const board = document.getElementById('kanban-board');
+  board.innerHTML = '';
+
+  const displayPitches = showingStale
+    ? pitches.filter(p => isStale(p))
+    : pitches;
+
+  const isEmpty = pitches.length === 0;
+  document.getElementById('empty-state').style.display = isEmpty ? 'block' : 'none';
+  document.getElementById('view-kanban').style.display = isEmpty ? 'none' : 'block';
+
+  STATUSES.forEach(s => {
+    const col = displayPitches.filter(p => p.status === s.key);
+    if (col.length === 0 && showingStale) return;
+
+    const colEl = document.createElement('div');
+    colEl.className = `kanban-col ${s.colCls}`;
+    colEl.innerHTML = `
+      <div class="kanban-col-header">
+        <span class="kanban-col-title">${s.label}</span>
+        <span class="kanban-col-count">${col.length}</span>
+      </div>
+      <div class="kanban-cards" id="col-${s.key}"></div>
+    `;
+    board.appendChild(colEl);
+
+    const cardsEl = document.getElementById('col-' + s.key);
+    col.forEach(p => cardsEl.appendChild(makePitchCard(p, true)));
+  });
+}
+
+function renderList() {
+  const board = document.getElementById('list-board');
+  board.innerHTML = '';
+
+  const displayPitches = showingStale
+    ? pitches.filter(p => isStale(p))
+    : [...pitches].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const isEmpty = pitches.length === 0;
+  document.getElementById('empty-state').style.display = isEmpty ? 'block' : 'none';
+  document.getElementById('view-list').style.display = isEmpty ? 'none' : 'block';
+
+  displayPitches.forEach(p => board.appendChild(makePitchCard(p, false)));
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btn-kanban').classList.toggle('active', v === 'kanban');
+  document.getElementById('btn-list').classList.toggle('active', v === 'list');
+  document.getElementById('view-kanban').style.display = v === 'kanban' ? 'block' : 'none';
+  document.getElementById('view-list').style.display = v === 'list' ? 'block' : 'none';
+  render();
+}
+
+function filterStale() {
+  showingStale = !showingStale;
+  document.querySelector('.followup-alert button').textContent = showingStale ? 'show all' : 'show them';
+  render();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  selectedMethod = null;
+  selectedStatus = 'sent';
+  document.getElementById('modal-title').innerHTML = 'new <em>pitch</em>';
+  document.getElementById('m-brand').value = '';
+  document.getElementById('m-niche').value = '';
+  document.getElementById('m-what').value = '';
+  document.getElementById('m-notes').value = '';
+  document.querySelectorAll('.method-pill').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.status-pill').forEach(p => {
+    p.classList.remove('selected');
+    if (p.dataset.status === 'sent') p.classList.add('selected');
+  });
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModal()">cancel</button>
+    <button class="btn" onclick="savePitch()">save pitch</button>
+  `;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function openEditModal(id) {
+  const pitch = pitches.find(p => p.id === id);
+  if (!pitch) return;
+  editingId = id;
+  selectedMethod = pitch.method || null;
+  selectedStatus = pitch.status || 'sent';
+
+  document.getElementById('modal-title').innerHTML = 'edit <em>pitch</em>';
+  document.getElementById('m-brand').value = pitch.brand || '';
+  document.getElementById('m-niche').value = pitch.niche || '';
+  document.getElementById('m-what').value = pitch.what || '';
+  document.getElementById('m-notes').value = pitch.notes || '';
+
+  document.querySelectorAll('.method-pill').forEach(p => {
+    p.classList.toggle('on', p.dataset.method === pitch.method);
+  });
+  document.querySelectorAll('.status-pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.status === pitch.status);
+  });
+
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn btn-danger" onclick="deletePitch('${id}')">delete</button>
+    <button class="btn btn-ghost" onclick="closeModal()">cancel</button>
+    <button class="btn" onclick="savePitch()">save</button>
+  `;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+function pickMethod(el) {
+  document.querySelectorAll('.method-pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  selectedMethod = el.dataset.method;
+}
+
+function pickStatus(el) {
+  document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedStatus = el.dataset.status;
+}
+
+function savePitch() {
+  const brand = document.getElementById('m-brand').value.trim();
+  if (!brand) { alert('add the brand name'); return; }
+
+  const now = new Date().toISOString();
+
+  if (editingId) {
+    const idx = pitches.findIndex(p => p.id === editingId);
+    if (idx !== -1) {
+      pitches[idx] = {
+        ...pitches[idx],
+        brand,
+        niche: document.getElementById('m-niche').value.trim(),
+        method: selectedMethod,
+        what: document.getElementById('m-what').value.trim(),
+        status: selectedStatus,
+        notes: document.getElementById('m-notes').value.trim(),
+        updatedAt: now,
+      };
+    }
+  } else {
+    const isNew = selectedStatus === 'sent';
+    pitches.unshift({
+      id: Date.now().toString(),
+      brand,
+      niche: document.getElementById('m-niche').value.trim(),
+      method: selectedMethod,
+      what: document.getElementById('m-what').value.trim(),
+      status: selectedStatus,
+      notes: document.getElementById('m-notes').value.trim(),
+      createdAt: now,
+      updatedAt: now,
+    });
+    if (isNew) {
+      todayCount++;
+      saveTodayCount();
+    }
+  }
+
+  save();
+  closeModal();
+  render();
+}
+
+function deletePitch(id) {
+  if (!confirm('delete this pitch?')) return;
+  pitches = pitches.filter(p => p.id !== id);
+  save();
+  closeModal();
+  render();
+}
+
+// ── GOAL MODAL ────────────────────────────────────────────────────────────────
+function openGoalModal() {
+  document.getElementById('goal-input').value = dailyGoal;
+  document.getElementById('goal-modal').style.display = 'flex';
+}
+
+function closeGoalModalOutside(e) {
+  if (e.target === document.getElementById('goal-modal')) {
+    document.getElementById('goal-modal').style.display = 'none';
+  }
+}
+
+function saveGoal() {
+  const val = parseInt(document.getElementById('goal-input').value);
+  if (!val || val < 1) return;
+  dailyGoal = val;
+  try { localStorage.setItem(GOAL_KEY, val); } catch(e) {}
+  document.getElementById('goal-modal').style.display = 'none';
+  renderGoalBar();
+}
+
+// ── QUICK LOG ─────────────────────────────────────────────────────────────────
+function quickLog(n) {
+  todayCount += n;
+  saveTodayCount();
+  renderGoalBar();
+  // Brief visual feedback
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = '✓';
+  btn.style.color = 'var(--sage)';
+  btn.style.borderColor = 'var(--sage-border)';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }, 600);
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function exportCSV() {
+  if (pitches.length === 0) { alert('no pitches to export yet'); return; }
+
+  const headers = ['Brand', 'Niche', 'Method', 'What Pitched', 'Status', 'Notes', 'Date Sent', 'Last Updated'];
+  const rows = pitches.map(p => [
+    p.brand || '',
+    p.niche || '',
+    p.method || '',
+    p.what || '',
+    p.status || '',
+    (p.notes || '').replace(/"/g, '""'),
+    p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '',
+    p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '',
+  ].map(v => `"${v}"`).join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `pitches-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
