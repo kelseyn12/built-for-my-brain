@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Built for My Brain — What Do I Film Today?</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage: #4a7c59;
+  --sage-mid: #3d6b4a;
+  --sage-light: rgba(74,124,89,0.1);
+  --sage-border: rgba(74,124,89,0.25);
+  --teal: #3d7a72;
+  --teal-light: rgba(61,122,114,0.08);
+  --teal-border: rgba(61,122,114,0.22);
+  --slate: #4a6b8a;
+  --slate-light: rgba(74,107,138,0.08);
+  --bg: #f4f2ee;
+  --bg-card: #ffffff;
+  --bg-soft: #eeecea;
+  --bg-softer: #e8e5e0;
+  --text: #2c3330;
+  --text-mid: #5a6b62;
+  --text-muted: #8a9e94;
+  --text-faint: #b8c5be;
+  --border: rgba(74,100,88,0.1);
+  --border-mid: rgba(74,100,88,0.18);
+  --shadow: 0 2px 8px rgba(44,51,48,0.07);
+  --shadow-sm: 0 1px 3px rgba(44,51,48,0.06);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 2rem 1.25rem 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 520px; margin: 0 auto; }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-faint);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--sage); }
+
+.brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--sage); margin-bottom: 8px; }
+
+h1 { font-family: 'DM Serif Display', serif; font-size: 30px; font-weight: 400; line-height: 1.15; margin-bottom: 6px; color: var(--text); }
+h1 em { font-style: italic; color: var(--sage); }
+
+.sub { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.75rem; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+.step { display: none; }
+.step.active { display: block; }
+
+.progress-wrap { margin-bottom: 1.75rem; }
+.progress-bar-bg { height: 4px; background: var(--bg-softer); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+.progress-bar-fill { height: 100%; background: var(--sage); border-radius: 2px; transition: width 0.4s ease; }
+.progress-label { font-size: 11px; color: var(--text-faint); letter-spacing: 0.04em; }
+
+.save-notice { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-faint); margin-bottom: 1.25rem; font-style: italic; }
+.save-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+
+.field { margin-bottom: 1.25rem; }
+.field-label { font-size: 15px; font-weight: 500; color: var(--text); display: block; margin-bottom: 4px; line-height: 1.4; }
+.field-hint { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 8px; line-height: 1.6; }
+.field-note { font-size: 11px; color: var(--sage); margin-top: 6px; display: block; font-style: italic; }
+
+input[type=text], input[type=password], textarea {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+input:focus, textarea:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-light); }
+input::placeholder, textarea::placeholder { color: var(--text-faint); }
+textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 7px 14px; border-radius: 99px; border: 1px solid var(--border-mid);
+  font-size: 13px; cursor: pointer; background: var(--bg-card); color: var(--text-mid);
+  transition: all 0.15s; user-select: none; font-family: 'DM Sans', sans-serif;
+  box-shadow: var(--shadow-sm);
+}
+.chip:hover { border-color: var(--sage-border); color: var(--text); }
+.chip.on { background: var(--sage-light); border-color: var(--sage-border); color: var(--sage); font-weight: 500; }
+.chip.multi { cursor: pointer; }
+
+.energy-row { display: flex; gap: 8px; }
+.energy-opt {
+  flex: 1; padding: 14px 6px 12px; border-radius: var(--radius); border: 1px solid var(--border-mid);
+  text-align: center; cursor: pointer; background: var(--bg-card); transition: all 0.15s; box-shadow: var(--shadow-sm);
+}
+.energy-opt:hover { border-color: var(--sage-border); }
+.energy-opt.on { border-color: var(--sage-border); background: var(--sage-light); }
+.e-icon { font-size: 24px; margin-bottom: 5px; display: block; }
+.e-label { font-size: 12px; color: var(--text-muted); line-height: 1.3; }
+.energy-opt.on .e-label { color: var(--sage); }
+
+.work-type-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.work-type-row input { flex: 1; }
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-mid);
+  background: var(--bg-card); color: var(--text-faint); cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;
+}
+.icon-btn:hover { border-color: #e05555; color: #e05555; }
+.add-link {
+  font-size: 13px; color: var(--sage); cursor: pointer; border: none; background: none;
+  padding: 0; margin-top: 4px; font-family: 'DM Sans', sans-serif;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+
+.btn {
+  width: 100%; padding: 13px; font-size: 15px; font-weight: 600; border-radius: var(--radius);
+  cursor: pointer; border: none; background: var(--sage); color: #fff; margin-top: 1.25rem;
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(74,124,89,0.2);
+}
+.btn:hover { background: var(--sage-mid); }
+.btn:active { transform: scale(0.98); }
+.btn-ghost {
+  background: var(--bg-card); color: var(--text-mid); border: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); }
+.btn-sm { padding: 9px 18px; font-size: 13px; width: auto; margin-top: 0; }
+.btn-row { display: flex; gap: 8px; margin-top: 1.25rem; flex-wrap: wrap; }
+
+.divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+
+.loading-wrap { text-align: center; padding: 3rem 1rem; }
+.spinner {
+  width: 36px; height: 36px; border: 2px solid var(--border-mid); border-top-color: var(--sage);
+  border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 1.25rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+/* RESULT CARD */
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.35s ease both;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.result-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.result-pillar { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage); }
+.result-format { font-size: 11px; color: var(--text-faint); }
+
+.result-body { padding: 16px; }
+.result-idea { font-size: 18px; font-weight: 500; color: var(--text); line-height: 1.4; margin-bottom: 10px; }
+
+.result-section { margin-bottom: 12px; }
+.result-section:last-of-type { margin-bottom: 0; }
+.result-section-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-faint); margin-bottom: 4px; display: block;
+}
+.result-section-text { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+.result-hook { font-size: 14px; color: var(--text); font-style: italic; line-height: 1.5; }
+
+.result-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.result-tag {
+  font-size: 11px; padding: 3px 10px; border-radius: 99px;
+  background: var(--bg-soft); color: var(--text-muted); border: 1px solid var(--border);
+}
+
+.result-footer { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--bg-soft); }
+
+.tip-box {
+  background: var(--teal-light); border: 1px solid var(--teal-border);
+  border-radius: var(--radius); padding: 14px 16px; margin-top: 1.25rem;
+}
+.tip-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 5px; display: block; }
+.tip-box p { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
+
+.profile-badge {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg-soft); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 1.25rem;
+}
+.profile-info { font-size: 13px; color: var(--text-muted); }
+.profile-info strong { color: var(--text); font-weight: 500; }
+.profile-edit { font-size: 12px; color: var(--sage); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+.footer { font-size: 11px; color: var(--text-faint); margin-top: 2rem; line-height: 1.65; }
+.footer a { color: var(--sage); text-decoration: none; }
+
+/* GOAL CARDS */
+.goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.goal-card {
+  padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-mid);
+  cursor: pointer; background: var(--bg-card); transition: all 0.15s; box-shadow: var(--shadow-sm);
+}
+.goal-card:hover { border-color: var(--sage-border); }
+.goal-card.on { background: var(--sage-light); border-color: var(--sage-border); }
+.goal-icon { font-size: 20px; margin-bottom: 5px; display: block; }
+.goal-label { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.goal-card.on .goal-label { color: var(--sage); }
+.goal-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="./index.html" class="back-link">← built for my brain</a>
+
+<!-- ══════════════════════════════════ -->
+<!--  API KEY SCREEN                   -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-apikey">
+  <div class="brand">Built for My Brain</div>
+  <h1>one quick<br><em>setup</em></h1>
+  <p class="sub">this tool uses AI to generate ideas from your actual life. you'll need a free Anthropic API key — takes 2 minutes and costs pennies.</p>
+
+  <div style="background:var(--bg-soft);border:1px solid var(--border-mid);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;">how to get your free API key:</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">go to <a href="https://console.anthropic.com" target="_blank" style="color:var(--sage);font-weight:500;">console.anthropic.com</a> and create a free account</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">add $5 credit — lasts months at this usage level</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.5;">go to API Keys → Create Key → paste it below</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="field-label">paste your API key here</span>
+    <span class="field-hint">stays in your browser only — never shared anywhere except directly to Anthropic.</span>
+    <input type="password" id="api-key-input" placeholder="sk-ant-..." style="font-family:monospace;font-size:13px;" />
+    <span id="api-key-error" style="display:none;font-size:12px;color:#c0392b;margin-top:6px;">that doesn't look right — Anthropic keys start with sk-ant-</span>
+  </div>
+  <button class="btn" onclick="saveApiKey()">save and continue →</button>
+  <p style="font-size:11px;color:var(--text-faint);margin-top:1rem;line-height:1.6;text-align:center;">each idea generation costs less than $0.01.</p>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  SETUP SCREEN                     -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-setup">
+  <div class="brand">Built for My Brain</div>
+  <h1>tell me about<br><em>your life</em></h1>
+  <p class="sub">this happens once. the more you share, the more relevant your ideas. safe to close and come back — we save as you go.</p>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="setup-bar" style="width:33%"></div></div>
+    <span class="progress-label" id="setup-label">step 1 of 3</span>
+  </div>
+
+  <div class="save-notice"><div class="save-dot"></div> saving as you go</div>
+
+  <!-- STEP 1: Who you are -->
+  <div class="step active" id="setup-1">
+    <div class="field">
+      <span class="field-label">what's your name?</span>
+      <input type="text" id="p-name" placeholder="first name" oninput="autosave()" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">what are you trying to do with your content?</span>
+      <span class="field-hint">pick the one that fits best — this shapes the kind of ideas you get.</span>
+      <div class="goal-grid">
+        <div class="goal-card" data-val="portfolio" onclick="pickGoal(this)">
+          <span class="goal-icon">🎥</span>
+          <div class="goal-label">build a portfolio</div>
+          <div class="goal-desc">filming spec work to pitch brands</div>
+        </div>
+        <div class="goal-card" data-val="brand" onclick="pickGoal(this)">
+          <span class="goal-icon">🌱</span>
+          <div class="goal-label">grow a personal brand</div>
+          <div class="goal-desc">building an audience around your life</div>
+        </div>
+        <div class="goal-card" data-val="journey" onclick="pickGoal(this)">
+          <span class="goal-icon">📖</span>
+          <div class="goal-label">document a journey</div>
+          <div class="goal-desc">sharing your process in real time</div>
+        </div>
+        <div class="goal-card" data-val="practice" onclick="pickGoal(this)">
+          <span class="goal-icon">🎯</span>
+          <div class="goal-label">just practicing</div>
+          <div class="goal-desc">figuring out your style and workflow</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label">what's your niche or content focus?</span>
+      <span class="field-hint">what subjects, lifestyles, or categories do you want to make content about?</span>
+      <input type="text" id="p-niche" placeholder="e.g. outdoor adventure, travel, lifestyle, fitness, food, pets" oninput="autosave()" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">do you have a pet?</span>
+      <div class="chips">
+        <div class="chip" data-val="yes" onclick="pickPet(this)">yes</div>
+        <div class="chip" data-val="no" onclick="pickPet(this)">no</div>
+      </div>
+    </div>
+    <div id="pet-name-field" style="display:none;" class="field">
+      <span class="field-label">what's their name?</span>
+      <input type="text" id="p-petname" placeholder="e.g. Diego" oninput="autosave()" />
+    </div>
+
+    <button class="btn" onclick="setupNext(2)">next →</button>
+  </div>
+
+  <!-- STEP 2: Your creative work + gear -->
+  <div class="step" id="setup-2">
+    <div class="field">
+      <span class="field-label">what kind of creative work do you do?</span>
+      <span class="field-hint">pick all that apply, then add anything that doesn't fit.</span>
+      <div class="chips" id="work-chips" style="margin-bottom:8px;">
+        <div class="chip multi" data-val="ugc" onclick="this.classList.toggle('on');autosave()">UGC creator</div>
+        <div class="chip multi" data-val="webdev" onclick="this.classList.toggle('on');autosave()">web designer / dev</div>
+        <div class="chip multi" data-val="photographer" onclick="this.classList.toggle('on');autosave()">photographer</div>
+        <div class="chip multi" data-val="musician" onclick="this.classList.toggle('on');autosave()">musician</div>
+        <div class="chip multi" data-val="writer" onclick="this.classList.toggle('on');autosave()">writer</div>
+        <div class="chip multi" data-val="videographer" onclick="this.classList.toggle('on');autosave()">videographer</div>
+        <div class="chip multi" data-val="coach" onclick="this.classList.toggle('on');autosave()">coach / consultant</div>
+        <div class="chip multi" data-val="maker" onclick="this.classList.toggle('on');autosave()">maker / crafter</div>
+      </div>
+      <input type="text" id="p-work-other" placeholder="anything else? e.g. Etsy shop, podcast, newsletter..." oninput="autosave()" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">gear or products you use and love</span>
+      <span class="field-hint">things you'd genuinely make content about — could be anything from camera gear to your morning coffee.</span>
+      <input type="text" id="p-gear" placeholder="e.g. coffee, camera setup, crocs, bike rack, record player, hiking boots" oninput="autosave()" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">where do you usually create content?</span>
+      <div class="chips">
+        <div class="chip multi" data-loc="home" onclick="this.classList.toggle('on');autosave()">at home</div>
+        <div class="chip multi" data-loc="outdoors" onclick="this.classList.toggle('on');autosave()">outdoors</div>
+        <div class="chip multi" data-loc="desk" onclick="this.classList.toggle('on');autosave()">at my desk</div>
+        <div class="chip multi" data-loc="traveling" onclick="this.classList.toggle('on');autosave()">traveling</div>
+        <div class="chip multi" data-loc="lake" onclick="this.classList.toggle('on');autosave()">near water</div>
+        <div class="chip multi" data-loc="city" onclick="this.classList.toggle('on');autosave()">in the city</div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="setupNext(3)">next →</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="setupNext(1)">← back</button>
+  </div>
+
+  <!-- STEP 3: Context -->
+  <div class="step" id="setup-3">
+    <div class="field">
+      <span class="field-label">anything else that should shape your content ideas?</span>
+      <span class="field-hint">ADHD, mental health journey, specific brands you're targeting, communities you're part of, life situations you want to document — the more specific you are, the better the ideas.</span>
+      <textarea id="p-extra" placeholder="e.g. recently diagnosed with ADHD and sharing my journey, targeting outdoor and adventure brands, documenting building a UGC business..." oninput="autosave()"></textarea>
+    </div>
+
+    <div class="field">
+      <span class="field-label">brands or dream collabs you're working toward</span>
+      <span class="field-hint">optional — if you have specific brands in mind, ideas will lean toward content that would catch their attention.</span>
+      <input type="text" id="p-brands" placeholder="e.g. Big Agnes, La Sportiva, Patagonia, adventure tourism brands" oninput="autosave()" />
+    </div>
+
+    <button class="btn" onclick="saveProfile()">save and start filming ✦</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="setupNext(2)">← back</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  GENERATE SCREEN                  -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-generate">
+  <div class="brand">Built for My Brain</div>
+  <h1>what do i<br><em>film today?</em></h1>
+  <p class="sub">answer 3 quick questions. get an idea built around your actual life.</p>
+
+  <div class="profile-badge">
+    <span class="profile-info">ideas for <strong id="gen-name"></strong></span>
+    <span class="profile-edit" onclick="showSetup()">edit profile</span>
+  </div>
+
+  <div class="field">
+    <span class="field-label">how's your energy right now?</span>
+    <div class="energy-row">
+      <div class="energy-opt" data-val="low" onclick="pickEnergy(this)">
+        <span class="e-icon">🪫</span>
+        <div class="e-label">low — barely here</div>
+      </div>
+      <div class="energy-opt" data-val="medium" onclick="pickEnergy(this)">
+        <span class="e-icon">⚡</span>
+        <div class="e-label">medium — functional</div>
+      </div>
+      <div class="energy-opt" data-val="high" onclick="pickEnergy(this)">
+        <span class="e-icon">🔥</span>
+        <div class="e-label">high — let's go</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="field-label">how much time do you have?</span>
+    <div class="chips">
+      <div class="chip" data-group="time" onclick="pickChip(this)">under 10 min</div>
+      <div class="chip" data-group="time" onclick="pickChip(this)">10–30 min</div>
+      <div class="chip" data-group="time" onclick="pickChip(this)">30 min – 2 hours</div>
+      <div class="chip" data-group="time" onclick="pickChip(this)">half a day or more</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="field-label">where are you right now?</span>
+    <div class="chips" id="location-chips"></div>
+  </div>
+
+  <button class="btn" onclick="generateIdea()">show me what to film ✦</button>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  LOADING SCREEN                   -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-loading">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <p class="loading-msg" id="loading-msg">finding your idea...</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  RESULT SCREEN                    -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-result">
+  <div class="brand">Built for My Brain</div>
+  <h1>your idea<br><em>for today</em></h1>
+
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <span class="result-pillar" id="r-pillar"></span>
+      <span class="result-format" id="r-format"></span>
+    </div>
+    <div class="result-body">
+      <div class="result-idea" id="r-idea"></div>
+
+      <div class="result-section">
+        <span class="result-section-label">hook</span>
+        <div class="result-hook" id="r-hook"></div>
+      </div>
+
+      <div class="result-section" id="r-caption-wrap">
+        <span class="result-section-label">caption</span>
+        <div class="result-section-text" id="r-caption"></div>
+      </div>
+
+      <div class="result-section" id="r-why-wrap">
+        <span class="result-section-label">why this works</span>
+        <div class="result-section-text" id="r-why"></div>
+      </div>
+
+      <div class="result-tags" id="r-tags"></div>
+    </div>
+    <div class="result-footer">
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="generateIdea()">give me another</button>
+        <button class="btn btn-sm" onclick="copyIdea()">copy idea + hook</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box" id="tip-box" style="display:none;">
+    <span class="tip-title">energy tip</span>
+    <p id="tip-text"></p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost btn-sm" onclick="show('screen-generate')">change my answers</button>
+  </div>
+
+  <p class="footer">Built for My Brain — free tools for ADHD creatives.<br>
+  made by <a href="https://kelseynocek.com">Kelsey Nocek</a> ·
+  <span class="profile-edit" onclick="showSetup()" style="cursor:pointer;">edit profile</span> ·
+  <span class="profile-edit" onclick="changeApiKey()" style="cursor:pointer;">change API key</span></p>
+</div>
+
+</div><!-- /container -->
+<script>
+const PROFILE_KEY = 'bfmb_film_profile_v1';
+const DRAFT_KEY = 'bfmb_film_draft_v1';
+const API_KEY_KEY = 'bfmb_apikey_v1'; // shared with planner
+
+let profile = null;
+let userApiKey = null;
+let genState = { energy: null, time: null, location: null };
+let setupGoal = null;
+let hasPet = false;
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadProfile();
+  restoreDraft();
+  try { userApiKey = localStorage.getItem(API_KEY_KEY) || null; } catch(e) {}
+
+  if (!userApiKey) {
+    show('screen-apikey');
+  } else if (profile) {
+    showGenerate();
+  } else {
+    show('screen-setup');
+  }
+});
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── API KEY ───────────────────────────────────────────────────────────────────
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  const err = document.getElementById('api-key-error');
+  if (!key || !key.startsWith('sk-ant-')) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  userApiKey = key;
+  try { localStorage.setItem(API_KEY_KEY, key); } catch(e) {}
+  if (profile) showGenerate();
+  else show('screen-setup');
+}
+
+function changeApiKey() {
+  userApiKey = null;
+  try { localStorage.removeItem(API_KEY_KEY); } catch(e) {}
+  document.getElementById('api-key-input').value = '';
+  show('screen-apikey');
+}
+
+// ── SETUP ──────────────────────────────────────────────────────────────────────
+function setupUpdateProgress(step) {
+  const pcts = { 1: 33, 2: 66, 3: 95 };
+  document.getElementById('setup-bar').style.width = pcts[step] + '%';
+  document.getElementById('setup-label').textContent = `step ${step} of 3`;
+}
+
+function setupNext(n) {
+  if (n === 2) {
+    if (!document.getElementById('p-name').value.trim()) { alert('add your name to get started'); return; }
+    if (!setupGoal) { alert('pick a content goal first'); return; }
+  }
+  document.querySelectorAll('#screen-setup .step').forEach(s => s.classList.remove('active'));
+  document.getElementById('setup-' + n).classList.add('active');
+  setupUpdateProgress(n);
+  autosave();
+  window.scrollTo(0, 0);
+}
+
+function pickGoal(el) {
+  document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  setupGoal = el.dataset.val;
+  autosave();
+}
+
+function pickPet(el) {
+  document.querySelectorAll('[data-val="yes"],[data-val="no"]').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  hasPet = el.dataset.val === 'yes';
+  document.getElementById('pet-name-field').style.display = hasPet ? 'block' : 'none';
+  autosave();
+}
+
+function pickChip(el) {
+  const group = el.dataset.group;
+  if (!group) return;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function pickEnergy(el) {
+  document.querySelectorAll('.energy-opt').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  genState.energy = el.dataset.val;
+}
+
+function autosave() {
+  try {
+    const draft = {
+      name: document.getElementById('p-name')?.value || '',
+      niche: document.getElementById('p-niche')?.value || '',
+      goal: setupGoal,
+      hasPet,
+      petName: document.getElementById('p-petname')?.value || '',
+      gear: document.getElementById('p-gear')?.value || '',
+      workOther: document.getElementById('p-work-other')?.value || '',
+      extra: document.getElementById('p-extra')?.value || '',
+      brands: document.getElementById('p-brands')?.value || '',
+      work: [...document.querySelectorAll('#work-chips .chip.on')].map(c => c.dataset.val),
+      locations: [...document.querySelectorAll('[data-loc].on')].map(c => c.dataset.loc),
+    };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch(e) {}
+}
+
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.name) document.getElementById('p-name').value = d.name;
+    if (d.niche) document.getElementById('p-niche').value = d.niche;
+    if (d.gear) document.getElementById('p-gear').value = d.gear;
+    if (d.workOther) document.getElementById('p-work-other').value = d.workOther;
+    if (d.extra) document.getElementById('p-extra').value = d.extra;
+    if (d.brands) document.getElementById('p-brands').value = d.brands;
+    if (d.goal) {
+      setupGoal = d.goal;
+      const goalEl = document.querySelector(`[data-val="${d.goal}"]`);
+      if (goalEl) goalEl.classList.add('on');
+    }
+    if (d.hasPet) {
+      hasPet = d.hasPet;
+      const petEl = document.querySelector(`[data-val="${d.hasPet ? 'yes' : 'no'}"]`);
+      if (petEl) petEl.classList.add('on');
+      if (d.hasPet) {
+        document.getElementById('pet-name-field').style.display = 'block';
+        if (d.petName) document.getElementById('p-petname').value = d.petName;
+      }
+    }
+    if (d.work) d.work.forEach(w => {
+      const el = document.querySelector(`#work-chips [data-val="${w}"]`);
+      if (el) el.classList.add('on');
+    });
+    if (d.locations) d.locations.forEach(l => {
+      const el = document.querySelector(`[data-loc="${l}"]`);
+      if (el) el.classList.add('on');
+    });
+  } catch(e) {}
+}
+
+function saveProfile() {
+  const name = document.getElementById('p-name').value.trim();
+  if (!name) { alert('add your name'); return; }
+  if (!setupGoal) { alert('pick a content goal'); return; }
+
+  profile = {
+    name,
+    niche: document.getElementById('p-niche').value.trim(),
+    goal: setupGoal,
+    hasPet,
+    petName: document.getElementById('p-petname').value.trim(),
+    gear: document.getElementById('p-gear').value.trim(),
+    work: [...document.querySelectorAll('#work-chips .chip.on')].map(c => c.dataset.val),
+    workOther: document.getElementById('p-work-other').value.trim(),
+    locations: [...document.querySelectorAll('[data-loc].on')].map(c => c.dataset.loc),
+    extra: document.getElementById('p-extra').value.trim(),
+    brands: document.getElementById('p-brands').value.trim(),
+  };
+  try {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    localStorage.removeItem(DRAFT_KEY);
+  } catch(e) {}
+  showGenerate();
+}
+
+function loadProfile() {
+  try {
+    const r = localStorage.getItem(PROFILE_KEY);
+    if (r) profile = JSON.parse(r);
+  } catch(e) {}
+}
+
+// ── GENERATE ──────────────────────────────────────────────────────────────────
+function showGenerate() {
+  if (!profile) { show('screen-setup'); return; }
+  document.getElementById('gen-name').textContent = profile.name;
+
+  // Build location chips from profile
+  const locWrap = document.getElementById('location-chips');
+  locWrap.innerHTML = '';
+  const locs = profile.locations && profile.locations.length
+    ? profile.locations
+    : ['home','outdoors','desk','traveling'];
+  const locLabels = { home:'at home', outdoors:'outside', desk:'at my desk', traveling:'on a trip', lake:'near water', city:'in the city' };
+  locs.forEach(l => {
+    const c = document.createElement('div');
+    c.className = 'chip';
+    c.dataset.group = 'location';
+    c.textContent = locLabels[l] || l;
+    c.onclick = () => {
+      document.querySelectorAll('[data-group="location"]').forEach(x => x.classList.remove('on'));
+      c.classList.add('on');
+      genState.location = l;
+    };
+    locWrap.appendChild(c);
+  });
+
+  show('screen-generate');
+}
+
+function showSetup() {
+  show('screen-setup');
+  document.querySelectorAll('#screen-setup .step').forEach(s => s.classList.remove('active'));
+  document.getElementById('setup-1').classList.add('active');
+  setupUpdateProgress(1);
+  if (profile) {
+    document.getElementById('p-name').value = profile.name || '';
+    document.getElementById('p-niche').value = profile.niche || '';
+    document.getElementById('p-gear').value = profile.gear || '';
+    document.getElementById('p-work-other').value = profile.workOther || '';
+    document.getElementById('p-extra').value = profile.extra || '';
+    document.getElementById('p-brands').value = profile.brands || '';
+    if (profile.goal) {
+      setupGoal = profile.goal;
+      const el = document.querySelector(`[data-val="${profile.goal}"]`);
+      if (el) el.classList.add('on');
+    }
+  }
+}
+
+async function generateIdea() {
+  if (!genState.energy) { alert('pick your energy level first'); return; }
+
+  const time = document.querySelector('[data-group="time"].on')?.textContent || 'some time';
+  const location = genState.location || (profile.locations?.[0]) || 'home';
+
+  show('screen-loading');
+  const msgs = ['finding your idea...', 'thinking about your life...', 'almost there...'];
+  let mi = 0;
+  const interval = setInterval(() => {
+    document.getElementById('loading-msg').textContent = msgs[mi++ % msgs.length];
+  }, 1500);
+
+  const goalDescriptions = {
+    portfolio: 'building a UGC portfolio to pitch to brands',
+    brand: 'growing a personal brand and audience',
+    journey: 'documenting their creative journey in public',
+    practice: 'practicing filming and finding their style'
+  };
+
+  const prompt = `You are a creative content strategist helping someone with ADHD figure out what to film today.
+
+THEIR PROFILE:
+Name: ${profile.name}
+Content goal: ${goalDescriptions[profile.goal] || profile.goal}
+Niche / focus: ${profile.niche || 'not specified'}
+Creative work: ${profile.work?.join(', ') || 'not specified'}${profile.workOther ? ', ' + profile.workOther : ''}
+Gear and products they love: ${profile.gear || 'not specified'}
+Usually films at: ${profile.locations?.join(', ') || 'various places'}
+Pet: ${profile.hasPet ? profile.petName || 'yes' : 'no'}
+Extra context: ${profile.extra || 'none'}
+Dream brands / targets: ${profile.brands || 'none specified'}
+
+TODAY:
+Energy level: ${genState.energy}
+Time available: ${time}
+Where they are right now: ${location}
+
+Generate ONE specific, actionable content idea perfectly matched to their energy, time, location, and goals.
+
+ENERGY RULES:
+- Low energy: simple, minimal setup, no travel required, can be done from where they are right now
+- Medium energy: moderate effort, maybe one location change, standard filming
+- High energy: ambitious, could involve going somewhere, multi-location, more complex
+
+Return ONLY a raw JSON object with these exact fields:
+{
+  "pillar": "short category name e.g. Behind the Scenes, Personal Brand, Gear Review, Journey Update, Adventure, Pet Content, Creative Process",
+  "format": "e.g. Reel, Carousel, Short clip, Talking to camera, B-roll montage",
+  "idea": "the specific content idea in one clear sentence",
+  "hook": "the exact opening line or text overlay — make it scroll-stopping",
+  "caption": "a natural conversational caption they could copy and paste",
+  "why": "one sentence explaining why this idea works for their specific goal",
+  "hashtags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "energyTip": "one sentence of encouragement matched to their energy level"
+}
+
+No markdown, no explanation, raw JSON only. Keep all strings under 150 characters.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': userApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    clearInterval(interval);
+
+    let raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+    if (start === -1 || end === -1) throw new Error('no JSON');
+    raw = raw.slice(start, end + 1);
+
+    const idea = JSON.parse(raw);
+    renderResult(idea);
+  } catch(err) {
+    clearInterval(interval);
+    console.error(err);
+    document.getElementById('loading-msg').innerHTML = 'something went wrong. <button onclick="generateIdea()" style="margin-top:12px;display:block;padding:10px 20px;border-radius:8px;border:none;background:var(--sage);color:white;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif;">try again</button>';
+  }
+}
+
+function renderResult(idea) {
+  document.getElementById('r-pillar').textContent = idea.pillar || '';
+  document.getElementById('r-format').textContent = idea.format || '';
+  document.getElementById('r-idea').textContent = idea.idea || '';
+  document.getElementById('r-hook').textContent = idea.hook || '';
+  document.getElementById('r-caption').textContent = idea.caption || '';
+  document.getElementById('r-why').textContent = idea.why || '';
+
+  const tags = document.getElementById('r-tags');
+  tags.innerHTML = '';
+  (idea.hashtags || []).forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'result-tag';
+    span.textContent = t.startsWith('#') ? t : '#' + t;
+    tags.appendChild(span);
+  });
+
+  if (idea.energyTip) {
+    document.getElementById('tip-text').textContent = idea.energyTip;
+    document.getElementById('tip-box').style.display = 'block';
+  } else {
+    document.getElementById('tip-box').style.display = 'none';
+  }
+
+  show('screen-result');
+}
+
+function copyIdea() {
+  const idea = document.getElementById('r-idea').textContent;
+  const hook = document.getElementById('r-hook').textContent;
+  const caption = document.getElementById('r-caption').textContent;
+  const tags = [...document.querySelectorAll('.result-tag')].map(t => t.textContent).join(' ');
+  const text = `Idea: ${idea}\n\nHook: ${hook}\n\nCaption: ${caption}\n\n${tags}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy idea + hook', 1500);
+  });
+}
+</script>
+</body>
+</html>
