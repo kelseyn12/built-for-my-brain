@@ -388,8 +388,8 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
   <div class="step" id="setup-3">
     <div class="field">
       <span class="field-label">anything else that should shape your content ideas?</span>
-      <span class="field-hint">ADHD, mental health journey, specific brands you're targeting, communities you're part of, life situations you want to document — the more specific you are, the better the ideas.</span>
-      <textarea id="p-extra" placeholder="e.g. recently diagnosed with ADHD and sharing my journey, targeting outdoor and adventure brands, documenting building a UGC business..." oninput="autosave()"></textarea>
+      <span class="field-hint">be specific about your actual story — not just what you do but where you are in the journey, what's true about your life right now, and what you want people to understand about you. the more accurate this is, the less Claude has to guess.</span>
+      <textarea id="p-extra" placeholder="e.g. recently diagnosed ADHD, intentionally building a UGC business alongside existing web design work, not starting over — adding something new. documenting the journey publicly. outdoor adventurer, surfer, bikepacker. dog named Diego." oninput="autosave()"></textarea>
     </div>
 
     <div class="field">
@@ -478,13 +478,15 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
       <div class="result-idea" id="r-idea"></div>
 
       <div class="result-section">
-        <span class="result-section-label">hook</span>
+        <span class="result-section-label">hook — adjust to your words</span>
         <div class="result-hook" id="r-hook"></div>
+        <div style="font-size:11px;color:var(--text-faint);margin-top:6px;font-style:italic;">reword this so it sounds like you actually said it.</div>
       </div>
 
       <div class="result-section" id="r-caption-wrap">
-        <span class="result-section-label">caption</span>
+        <span class="result-section-label">caption — edit to match your actual story</span>
         <div class="result-section-text" id="r-caption"></div>
+        <div style="font-size:11px;color:var(--text-faint);margin-top:6px;font-style:italic;">⚠️ treat this as a starting point — Claude doesn't know every detail of your story. rewrite anything that doesn't sound like you or isn't accurate.</div>
       </div>
 
       <div class="result-section" id="r-why-wrap">
