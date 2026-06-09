@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Creative Income Tracker for ADHD Freelancers | Built for My Brain</title>
+<meta name="description" content="Log income, auto-split for taxes, track expenses by bucket. Simple, visual, ADHD-friendly. Free, no sign-up, exports to CSV.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script defer src="/_vercel/insights/script.js"></script>
+<style>
+:root {
+  --sage: #4a7c59;
+  --sage-mid: #3d6b4a;
+  --sage-light: rgba(74,124,89,0.1);
+  --sage-border: rgba(74,124,89,0.25);
+  --teal: #3d7a72;
+  --teal-light: rgba(61,122,114,0.08);
+  --teal-border: rgba(61,122,114,0.22);
+  --red: #c0392b;
+  --red-light: rgba(192,57,43,0.08);
+  --red-border: rgba(192,57,43,0.2);
+  --amber: #8a6a3a;
+  --amber-light: rgba(138,106,58,0.1);
+  --amber-border: rgba(138,106,58,0.25);
+  --blue: #4a6b8a;
+  --blue-light: rgba(74,107,138,0.08);
+  --blue-border: rgba(74,107,138,0.22);
+  --bg: #f4f2ee;
+  --bg-card: #ffffff;
+  --bg-soft: #eeecea;
+  --bg-softer: #e8e5e0;
+  --text: #2c3330;
+  --text-mid: #5a6b62;
+  --text-muted: #8a9e94;
+  --text-faint: #b8c5be;
+  --border: rgba(74,100,88,0.1);
+  --border-mid: rgba(74,100,88,0.18);
+  --shadow: 0 2px 8px rgba(44,51,48,0.07);
+  --shadow-sm: 0 1px 3px rgba(44,51,48,0.06);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 1.5rem 1.25rem 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 520px; margin: 0 auto; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-faint); text-decoration: none;
+  margin-bottom: 1.25rem; transition: color 0.15s;
+}
+.back-link:hover { color: var(--sage); }
+
+.brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--sage); margin-bottom: 6px; }
+h1 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; line-height: 1.15; color: var(--text); margin-bottom: 4px; }
+h1 em { font-style: italic; color: var(--sage); }
+.sub { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.5rem; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* FIELDS */
+.field { margin-bottom: 1.1rem; }
+.field-label { font-size: 14px; font-weight: 500; color: var(--text); display: block; margin-bottom: 4px; }
+.field-hint { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px; line-height: 1.5; }
+
+input[type=text], input[type=number], textarea, select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm); font-size: 14px; background: var(--bg-card);
+  color: var(--text); font-family: 'DM Sans', sans-serif; transition: border-color 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-light); }
+input::placeholder { color: var(--text-faint); }
+select { cursor: pointer; }
+
+/* BUTTONS */
+.btn {
+  width: 100%; padding: 12px; font-size: 15px; font-weight: 600; border-radius: var(--radius);
+  cursor: pointer; border: none; background: var(--sage); color: #fff; margin-top: 1.1rem;
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  box-shadow: 0 2px 6px rgba(74,124,89,0.2);
+}
+.btn:hover { background: var(--sage-mid); }
+.btn:active { transform: scale(0.98); }
+.btn-ghost {
+  background: var(--bg-card); color: var(--text-mid); border: 1px solid var(--border-mid);
+  box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover { border-color: var(--sage-border); color: var(--sage); }
+.btn-sm { padding: 8px 16px; font-size: 13px; width: auto; margin-top: 0; }
+.btn-row { display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap; }
+.btn-danger { background: var(--red); box-shadow: none; }
+.btn-danger:hover { background: #a93226; }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+/* ── BUCKETS ── */
+.buckets-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.25rem; }
+.bucket-card {
+  border-radius: var(--radius); padding: 14px 12px;
+  border: 1px solid var(--border); background: var(--bg-card);
+  box-shadow: var(--shadow-sm); text-align: center;
+}
+.bucket-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+.bucket-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: block; }
+.bucket-amount { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); line-height: 1; margin-bottom: 4px; }
+.bucket-pct { font-size: 10px; color: var(--text-faint); }
+
+.bucket-tax { border-color: var(--red-border); }
+.bucket-tax .bucket-label { color: var(--red); }
+.bucket-biz { border-color: var(--blue-border); }
+.bucket-biz .bucket-label { color: var(--blue); }
+.bucket-yours { border-color: var(--sage-border); }
+.bucket-yours .bucket-label { color: var(--sage); }
+
+/* ── TOTAL BAR ── */
+.total-bar {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+.total-bar-label { font-size: 13px; color: var(--text-muted); }
+.total-bar-amount { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text); }
+
+/* ── STACKED BAR ── */
+.stack-bar { height: 8px; border-radius: 4px; overflow: hidden; display: flex; margin-bottom: 1.25rem; gap: 2px; }
+.stack-segment { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+.stack-tax { background: var(--red); }
+.stack-biz { background: var(--blue); }
+.stack-yours { background: var(--sage); }
+
+/* ── LOG INCOME FORM ── */
+.log-form {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  box-shadow: var(--shadow); margin-bottom: 1.25rem;
+}
+.log-form-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; display: block; }
+.log-row { display: flex; gap: 8px; }
+.log-row input { flex: 1; }
+.log-row .amount-input { width: 110px; flex: none; }
+
+/* ── TRANSACTION LIST ── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.section-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.section-action { font-size: 12px; color: var(--sage); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+.tx-list { display: flex; flex-direction: column; gap: 6px; }
+
+.tx-item {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+}
+.tx-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.tx-income::before { background: var(--sage); }
+.tx-expense-tax::before { background: var(--red); }
+.tx-expense-biz::before { background: var(--blue); }
+.tx-expense-yours::before { background: var(--amber); }
+
+.tx-icon { font-size: 16px; flex-shrink: 0; }
+.tx-info { flex: 1; }
+.tx-name { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.3; }
+.tx-meta { font-size: 11px; color: var(--text-faint); margin-top: 1px; }
+.tx-amount { font-size: 14px; font-weight: 600; flex-shrink: 0; }
+.tx-income .tx-amount { color: var(--sage); }
+.tx-expense-tax .tx-amount, .tx-expense-biz .tx-amount, .tx-expense-yours .tx-amount { color: var(--red); }
+.tx-delete {
+  width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border-mid);
+  background: var(--bg-soft); color: var(--text-faint); cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+}
+.tx-delete:hover { border-color: var(--red-border); color: var(--red); }
+
+/* ── MONTH TABS ── */
+.month-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+.month-tab {
+  padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border-mid); background: var(--bg-card);
+  color: var(--text-muted); transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+}
+.month-tab.on { background: var(--sage-light); border-color: var(--sage-border); color: var(--sage); }
+
+/* ── WIN ANIMATION ── */
+@keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+.win-flash { animation: popIn 0.4s ease; }
+
+/* ── SPLIT PREVIEW ── */
+.split-preview {
+  background: var(--bg-soft); border-radius: var(--radius-sm); padding: 12px 14px;
+  margin-top: 10px; display: none;
+}
+.split-preview.show { display: block; }
+.split-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; }
+.split-label { font-size: 12px; color: var(--text-mid); display: flex; align-items: center; gap: 6px; }
+.split-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.split-amount { font-size: 13px; font-weight: 600; color: var(--text); }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 2rem 1rem; }
+.empty-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+.empty-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+/* ── DISCLAIMER ── */
+.disclaimer {
+  font-size: 11px; color: var(--text-faint); font-style: italic;
+  line-height: 1.6; text-align: center; margin-top: 1rem;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(44,51,48,0.4);
+  backdrop-filter: blur(4px); z-index: 100;
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--bg-card); border-radius: var(--radius) var(--radius) 0 0;
+  padding: 1.5rem 1.25rem 2.5rem; width: 100%; max-width: 520px;
+  animation: slideUp 0.25s ease; max-height: 85vh; overflow-y: auto;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-handle { width: 36px; height: 4px; background: var(--bg-softer); border-radius: 2px; margin: 0 auto 1.25rem; }
+.modal-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); margin-bottom: 1.25rem; }
+.modal-title em { font-style: italic; color: var(--sage); }
+
+.footer { font-size: 11px; color: var(--text-faint); margin-top: 2rem; line-height: 1.65; }
+.footer a { color: var(--sage); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="./index.html" class="back-link">← built for my brain</a>
+
+<!-- ══════════════════════════════════ -->
+<!--  SETUP SCREEN                     -->
+<!-- ══════════════════════════════════ -->
+<div class="screen active" id="screen-setup">
+  <div class="brand">Built for My Brain</div>
+  <h1>income <em>tracker</em></h1>
+  <p class="sub">set it up once in 60 seconds. every dollar you earn gets split automatically into the right buckets.</p>
+
+  <div class="field">
+    <span class="field-label">what's your name?</span>
+    <input type="text" id="s-name" placeholder="first name" />
+  </div>
+
+  <div class="field">
+    <span class="field-label">how much do you want to set aside for taxes?</span>
+    <span class="field-hint">most freelancers set aside 25–34%. your CPA may have a specific number for your situation. you can change this anytime.</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="number" id="s-tax" placeholder="30" min="1" max="60" style="width:80px;flex:none;" />
+      <span style="font-size:14px;color:var(--text-muted);">% of every payment</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="field-label">business expenses bucket?</span>
+    <span class="field-hint">a slice set aside for tools, gear, subscriptions, anything business-related. optional — set to 0 if you don't want this bucket.</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="number" id="s-biz" placeholder="15" min="0" max="50" style="width:80px;flex:none;" />
+      <span style="font-size:14px;color:var(--text-muted);">% for business expenses</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="field-label">currency</span>
+    <select id="s-currency">
+      <option value="$">$ USD</option>
+      <option value="€">€ EUR</option>
+      <option value="£">£ GBP</option>
+      <option value="CA$">CA$ CAD</option>
+      <option value="AU$">AU$ AUD</option>
+    </select>
+  </div>
+
+  <div id="setup-preview" style="display:none;" class="split-preview show">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);margin-bottom:8px;">if you log $250 today</div>
+    <div class="split-row">
+      <span class="split-label"><span class="split-dot" style="background:var(--red);"></span>taxes</span>
+      <span class="split-amount" id="prev-tax">$85.00</span>
+    </div>
+    <div class="split-row" id="prev-biz-row">
+      <span class="split-label"><span class="split-dot" style="background:var(--blue);"></span>business</span>
+      <span class="split-amount" id="prev-biz">$37.50</span>
+    </div>
+    <div class="split-row">
+      <span class="split-label"><span class="split-dot" style="background:var(--sage);"></span>yours</span>
+      <span class="split-amount" id="prev-yours">$127.50</span>
+    </div>
+  </div>
+
+  <button class="btn" onclick="saveSetup()">set up my tracker ✦</button>
+
+  <p class="disclaimer" style="margin-top:1rem;">this tool is not financial or tax advice. always consult your CPA for your specific situation.</p>
+</div>
+
+<!-- ══════════════════════════════════ -->
+<!--  MAIN SCREEN                      -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-main">
+  <div class="brand">Built for My Brain</div>
+  <h1>income <em>tracker</em></h1>
+
+  <!-- TOTAL + BUCKETS -->
+  <div class="total-bar">
+    <span class="total-bar-label">total earned<br><span style="font-size:11px;color:var(--text-faint);" id="year-label"></span></span>
+    <span class="total-bar-amount" id="total-amount">$0</span>
+  </div>
+
+  <div class="stack-bar" id="stack-bar">
+    <div class="stack-segment stack-tax" id="seg-tax" style="width:34%"></div>
+    <div class="stack-segment stack-biz" id="seg-biz" style="width:15%"></div>
+    <div class="stack-segment stack-yours" id="seg-yours" style="width:51%"></div>
+  </div>
+
+  <div class="buckets-row">
+    <div class="bucket-card bucket-tax">
+      <span class="bucket-icon">🏛️</span>
+      <span class="bucket-label">taxes</span>
+      <div class="bucket-amount" id="b-tax">$0</div>
+      <div class="bucket-pct" id="b-tax-pct">0%</div>
+    </div>
+    <div class="bucket-card bucket-biz" id="biz-bucket-card">
+      <span class="bucket-icon">💼</span>
+      <span class="bucket-label">business</span>
+      <div class="bucket-amount" id="b-biz">$0</div>
+      <div class="bucket-pct" id="b-biz-pct">0%</div>
+    </div>
+    <div class="bucket-card bucket-yours">
+      <span class="bucket-icon">🎉</span>
+      <span class="bucket-label">yours</span>
+      <div class="bucket-amount" id="b-yours">$0</div>
+      <div class="bucket-pct" id="b-yours-pct">0%</div>
+    </div>
+  </div>
+
+  <!-- LOG INCOME -->
+  <div class="log-form">
+    <span class="log-form-title">💰 log a payment</span>
+    <div class="log-row" style="margin-bottom:8px;">
+      <input type="text" id="i-source" placeholder="who paid you? e.g. Big Agnes, client name" />
+    </div>
+    <div class="log-row">
+      <input type="number" id="i-amount" class="amount-input" placeholder="amount" min="0" step="0.01" oninput="updateSplitPreview()" />
+      <input type="text" id="i-date" placeholder="date e.g. Jun 8" style="flex:1;" />
+      <input type="text" id="i-note" placeholder="note (optional)" style="flex:1.5;" />
+    </div>
+    <div class="split-preview" id="income-preview">
+      <div class="split-row">
+        <span class="split-label"><span class="split-dot" style="background:var(--red);"></span>taxes</span>
+        <span class="split-amount" id="ip-tax"></span>
+      </div>
+      <div class="split-row" id="ip-biz-row">
+        <span class="split-label"><span class="split-dot" style="background:var(--blue);"></span>business</span>
+        <span class="split-amount" id="ip-biz"></span>
+      </div>
+      <div class="split-row">
+        <span class="split-label"><span class="split-dot" style="background:var(--sage);"></span>yours</span>
+        <span class="split-amount" id="ip-yours"></span>
+      </div>
+    </div>
+    <button class="btn" onclick="logIncome()" style="margin-top:10px;">log this payment ✓</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="section-header">
+    <span class="section-title">transactions</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span class="section-action" onclick="openExpenseModal()">+ log expense</span>
+      <span class="section-action" onclick="exportCSV()">↓ export</span>
+    </div>
+  </div>
+
+  <div class="month-tabs" id="month-tabs"></div>
+
+  <div class="tx-list" id="tx-list"></div>
+
+  <div id="empty-state" class="empty-state" style="display:none;">
+    <span class="empty-icon">💸</span>
+    <div class="empty-text">no transactions yet.<br>log your first payment above.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost btn-sm" onclick="openSettings()">⚙ settings</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ export CSV</button>
+  </div>
+
+  <p class="footer" style="margin-top:1.5rem;">
+    Built for My Brain — free tools for ADHD creatives.<br>
+    made by <a href="https://kelseynocek.com">Kelsey Nocek</a><br>
+    <span style="color:var(--text-faint);">your data is saved in this browser. export regularly to back it up. use the same browser and device to keep your data.</span><br>
+    <span style="font-style:italic;">this tool is not financial or tax advice. consult your CPA.</span>
+  </p>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay" id="expense-modal" style="display:none;" onclick="closeExpenseModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">log an <em>expense</em></div>
+    <div class="field">
+      <span class="field-label">what was it?</span>
+      <input type="text" id="e-name" placeholder="e.g. Musicbed subscription, camera lens, Adobe" />
+    </div>
+    <div class="field">
+      <span class="field-label">amount</span>
+      <input type="number" id="e-amount" placeholder="0.00" min="0" step="0.01" />
+    </div>
+    <div class="field">
+      <span class="field-label">which bucket did this come from?</span>
+      <select id="e-bucket">
+        <option value="biz">💼 business bucket</option>
+        <option value="yours">🎉 my money</option>
+        <option value="tax">🏛️ tax bucket (rare)</option>
+      </select>
+    </div>
+    <div class="field">
+      <span class="field-label">date</span>
+      <input type="text" id="e-date" placeholder="e.g. Jun 8" />
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem;">
+      <button class="btn btn-ghost" style="margin-top:0;flex:1;" onclick="closeExpenseModal()">cancel</button>
+      <button class="btn" style="margin-top:0;flex:1;" onclick="logExpense()">log expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal" style="display:none;" onclick="closeSettingsModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙ <em>settings</em></div>
+    <div class="field">
+      <span class="field-label">tax set-aside %</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="number" id="set-tax" min="1" max="60" style="width:80px;flex:none;" />
+        <span style="font-size:13px;color:var(--text-muted);">% of income</span>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label">business bucket %</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="number" id="set-biz" min="0" max="50" style="width:80px;flex:none;" />
+        <span style="font-size:13px;color:var(--text-muted);">% of income</span>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label">currency</span>
+      <select id="set-currency">
+        <option value="$">$ USD</option>
+        <option value="€">€ EUR</option>
+        <option value="£">£ GBP</option>
+        <option value="CA$">CA$ CAD</option>
+        <option value="AU$">AU$ AUD</option>
+      </select>
+    </div>
+    <p class="disclaimer">changing percentages only affects future calculations. past transactions stay as logged.</p>
+    <div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;">
+      <button class="btn btn-ghost" style="margin-top:0;flex:1;" onclick="closeSettingsModal()">cancel</button>
+      <button class="btn" style="margin-top:0;flex:1;" onclick="saveSettings()">save</button>
+    </div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+      <button class="btn btn-danger" onclick="clearAllData()" style="margin-top:0;font-size:13px;">clear all data</button>
+      <p style="font-size:11px;color:var(--text-faint);margin-top:6px;text-align:center;">this cannot be undone. export first.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+const TRACKER_KEY = 'bfmb_income_v1';
+const SETTINGS_KEY = 'bfmb_income_settings_v1';
+
+let settings = { name: '', taxPct: 30, bizPct: 15, currency: '$' };
+let transactions = [];
+let activeMonth = null;
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  // Setup preview listeners
+  ['s-tax', 's-biz'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateSetupPreview);
+  });
+  updateSetupPreview();
+
+  if (settings.name) {
+    show('screen-main');
+    render();
+  } else {
+    show('screen-setup');
+    // Prefill defaults
+    document.getElementById('s-tax').value = 30;
+    document.getElementById('s-biz').value = 15;
+    document.getElementById('setup-preview').style.display = 'block';
+  }
+
+  // Set today's date as default
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  document.getElementById('i-date').value = today;
+  document.getElementById('e-date').value = today;
+});
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function loadData() {
+  try {
+    const s = localStorage.getItem(SETTINGS_KEY);
+    if (s) settings = JSON.parse(s);
+    const t = localStorage.getItem(TRACKER_KEY);
+    if (t) transactions = JSON.parse(t);
+  } catch(e) {}
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    localStorage.setItem(TRACKER_KEY, JSON.stringify(transactions));
+  } catch(e) {}
+}
+
+// ── SETUP ──────────────────────────────────────────────────────────────────────
+function updateSetupPreview() {
+  const tax = parseFloat(document.getElementById('s-tax')?.value) || 30;
+  const biz = parseFloat(document.getElementById('s-biz')?.value) || 0;
+  const cur = document.getElementById('s-currency')?.value || '$';
+  const amount = 250;
+  const taxAmt = amount * (tax / 100);
+  const bizAmt = amount * (biz / 100);
+  const yoursAmt = amount - taxAmt - bizAmt;
+
+  document.getElementById('prev-tax').textContent = cur + taxAmt.toFixed(2);
+  document.getElementById('prev-biz').textContent = cur + bizAmt.toFixed(2);
+  document.getElementById('prev-yours').textContent = cur + Math.max(0, yoursAmt).toFixed(2);
+  document.getElementById('setup-preview').style.display = 'block';
+  const bizRow = document.getElementById('prev-biz-row');
+  if (bizRow) bizRow.style.display = biz > 0 ? 'flex' : 'none';
+}
+
+function saveSetup() {
+  const name = document.getElementById('s-name').value.trim();
+  if (!name) { alert('add your name to get started'); return; }
+  const tax = parseFloat(document.getElementById('s-tax').value) || 30;
+  const biz = parseFloat(document.getElementById('s-biz').value) || 0;
+  if (tax + biz > 95) { alert('tax + business % can\'t exceed 95%'); return; }
+  settings = {
+    name,
+    taxPct: tax,
+    bizPct: biz,
+    currency: document.getElementById('s-currency').value
+  };
+  saveData();
+  show('screen-main');
+  render();
+}
+
+// ── SPLIT PREVIEW WHILE TYPING ────────────────────────────────────────────────
+function updateSplitPreview() {
+  const amount = parseFloat(document.getElementById('i-amount').value) || 0;
+  const preview = document.getElementById('income-preview');
+  if (amount <= 0) { preview.classList.remove('show'); return; }
+
+  const taxAmt = amount * (settings.taxPct / 100);
+  const bizAmt = amount * (settings.bizPct / 100);
+  const yoursAmt = amount - taxAmt - bizAmt;
+  const c = settings.currency;
+
+  document.getElementById('ip-tax').textContent = c + taxAmt.toFixed(2);
+  document.getElementById('ip-biz').textContent = c + bizAmt.toFixed(2);
+  document.getElementById('ip-yours').textContent = c + Math.max(0, yoursAmt).toFixed(2);
+
+  const bizRow = document.getElementById('ip-biz-row');
+  if (bizRow) bizRow.style.display = settings.bizPct > 0 ? 'flex' : 'none';
+
+  preview.classList.add('show');
+}
+
+// ── LOG INCOME ─────────────────────────────────────────────────────────────────
+function logIncome() {
+  const source = document.getElementById('i-source').value.trim();
+  const amount = parseFloat(document.getElementById('i-amount').value);
+  const date = document.getElementById('i-date').value.trim();
+  const note = document.getElementById('i-note').value.trim();
+
+  if (!source) { alert('add who paid you'); return; }
+  if (!amount || amount <= 0) { alert('add the amount'); return; }
+
+  const taxAmt = amount * (settings.taxPct / 100);
+  const bizAmt = amount * (settings.bizPct / 100);
+  const yoursAmt = amount - taxAmt - bizAmt;
+
+  transactions.unshift({
+    id: Date.now().toString(),
+    type: 'income',
+    source,
+    amount,
+    taxAmt,
+    bizAmt,
+    yoursAmt,
+    date: date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    note,
+    month: getMonthKey(),
+  });
+
+  saveData();
+
+  // Clear form
+  document.getElementById('i-source').value = '';
+  document.getElementById('i-amount').value = '';
+  document.getElementById('i-note').value = '';
+  document.getElementById('income-preview').classList.remove('show');
+
+  // Win animation on buckets
+  document.querySelectorAll('.bucket-amount').forEach(el => {
+    el.classList.remove('win-flash');
+    void el.offsetWidth;
+    el.classList.add('win-flash');
+  });
+
+  render();
+}
+
+// ── LOG EXPENSE ────────────────────────────────────────────────────────────────
+function logExpense() {
+  const name = document.getElementById('e-name').value.trim();
+  const amount = parseFloat(document.getElementById('e-amount').value);
+  const bucket = document.getElementById('e-bucket').value;
+  const date = document.getElementById('e-date').value.trim();
+
+  if (!name) { alert('add what the expense was'); return; }
+  if (!amount || amount <= 0) { alert('add the amount'); return; }
+
+  transactions.unshift({
+    id: Date.now().toString(),
+    type: 'expense',
+    source: name,
+    amount,
+    bucket,
+    date: date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    month: getMonthKey(),
+  });
+
+  saveData();
+  closeExpenseModal();
+  render();
+
+  document.getElementById('e-name').value = '';
+  document.getElementById('e-amount').value = '';
+}
+
+function getMonthKey() {
+  const d = new Date();
+  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────────
+function render() {
+  const c = settings.currency;
+  const year = new Date().getFullYear();
+  document.getElementById('year-label').textContent = year;
+
+  // Build month list
+  const months = [...new Set(transactions.map(t => t.month))];
+  if (months.length === 0) months.push(getMonthKey());
+  if (!activeMonth || !months.includes(activeMonth)) activeMonth = months[0];
+
+  // Month tabs
+  const tabsEl = document.getElementById('month-tabs');
+  tabsEl.innerHTML = '';
+  months.forEach(m => {
+    const tab = document.createElement('div');
+    tab.className = 'month-tab' + (m === activeMonth ? ' on' : '');
+    tab.textContent = m;
+    tab.onclick = () => { activeMonth = m; render(); };
+    tabsEl.appendChild(tab);
+  });
+
+  // Calculate totals across ALL transactions
+  let totalIncome = 0, totalTax = 0, totalBiz = 0, totalYours = 0;
+  transactions.forEach(t => {
+    if (t.type === 'income') {
+      totalIncome += t.amount;
+      totalTax += t.taxAmt || 0;
+      totalBiz += t.bizAmt || 0;
+      totalYours += t.yoursAmt || 0;
+    }
+  });
+
+  // Update totals
+  document.getElementById('total-amount').textContent = c + totalIncome.toFixed(2);
+  document.getElementById('b-tax').textContent = c + totalTax.toFixed(2);
+  document.getElementById('b-biz').textContent = c + totalBiz.toFixed(2);
+  document.getElementById('b-yours').textContent = c + totalYours.toFixed(2);
+  document.getElementById('b-tax-pct').textContent = settings.taxPct + '%';
+  document.getElementById('b-biz-pct').textContent = settings.bizPct + '%';
+  document.getElementById('b-yours-pct').textContent = Math.max(0, 100 - settings.taxPct - settings.bizPct) + '%';
+
+  // Stack bar
+  if (totalIncome > 0) {
+    document.getElementById('seg-tax').style.width = settings.taxPct + '%';
+    document.getElementById('seg-biz').style.width = settings.bizPct + '%';
+    document.getElementById('seg-yours').style.width = Math.max(0, 100 - settings.taxPct - settings.bizPct) + '%';
+  }
+
+  // Hide biz bucket if 0%
+  document.getElementById('biz-bucket-card').style.display = settings.bizPct > 0 ? 'block' : 'none';
+
+  // Filter by active month
+  const filtered = transactions.filter(t => t.month === activeMonth);
+  const list = document.getElementById('tx-list');
+  const empty = document.getElementById('empty-state');
+
+  if (filtered.length === 0 && transactions.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    list.innerHTML = '';
+    filtered.forEach(t => {
+      const item = document.createElement('div');
+      const cls = t.type === 'income' ? 'tx-income' : `tx-expense-${t.bucket || 'biz'}`;
+      item.className = `tx-item ${cls}`;
+
+      const icon = t.type === 'income' ? '💰' :
+        t.bucket === 'tax' ? '🏛️' : t.bucket === 'yours' ? '🎉' : '💼';
+      const amountStr = t.type === 'income'
+        ? '+' + c + t.amount.toFixed(2)
+        : '-' + c + t.amount.toFixed(2);
+      const meta = t.type === 'income'
+        ? `${t.date}${t.note ? ' · ' + t.note : ''}`
+        : `${t.date} · from ${t.bucket === 'biz' ? 'business' : t.bucket === 'tax' ? 'tax' : 'your'} bucket`;
+
+      item.innerHTML = `
+        <span class="tx-icon">${icon}</span>
+        <div class="tx-info">
+          <div class="tx-name">${t.source}</div>
+          <div class="tx-meta">${meta}</div>
+        </div>
+        <span class="tx-amount">${amountStr}</span>
+        <button class="tx-delete" onclick="deleteTx('${t.id}')">×</button>
+      `;
+      list.appendChild(item);
+    });
+  }
+}
+
+function deleteTx(id) {
+  if (!confirm('delete this transaction?')) return;
+  transactions = transactions.filter(t => t.id !== id);
+  saveData();
+  render();
+}
+
+// ── MODALS ─────────────────────────────────────────────────────────────────────
+function openExpenseModal() {
+  document.getElementById('expense-modal').style.display = 'flex';
+}
+function closeExpenseModal(e) {
+  if (!e || e.target === document.getElementById('expense-modal')) {
+    document.getElementById('expense-modal').style.display = 'none';
+  }
+}
+function openSettings() {
+  document.getElementById('set-tax').value = settings.taxPct;
+  document.getElementById('set-biz').value = settings.bizPct;
+  document.getElementById('set-currency').value = settings.currency;
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+function closeSettingsModal(e) {
+  if (!e || e.target === document.getElementById('settings-modal')) {
+    document.getElementById('settings-modal').style.display = 'none';
+  }
+}
+function saveSettings() {
+  const tax = parseFloat(document.getElementById('set-tax').value) || 30;
+  const biz = parseFloat(document.getElementById('set-biz').value) || 0;
+  if (tax + biz > 95) { alert('tax + business % can\'t exceed 95%'); return; }
+  settings.taxPct = tax;
+  settings.bizPct = biz;
+  settings.currency = document.getElementById('set-currency').value;
+  saveData();
+  closeSettingsModal();
+  render();
+}
+
+function clearAllData() {
+  if (!confirm('this will delete all your transactions. export first if you need them. continue?')) return;
+  transactions = [];
+  saveData();
+  render();
+}
+
+// ── EXPORT ─────────────────────────────────────────────────────────────────────
+function exportCSV() {
+  if (transactions.length === 0) { alert('no transactions to export yet'); return; }
+  const headers = ['Date', 'Type', 'Source / Description', 'Amount', 'Tax Set Aside', 'Business', 'Yours', 'Bucket', 'Note'];
+  const rows = transactions.map(t => [
+    t.date || '',
+    t.type,
+    t.source || '',
+    t.amount?.toFixed(2) || '',
+    t.type === 'income' ? (t.taxAmt?.toFixed(2) || '') : '',
+    t.type === 'income' ? (t.bizAmt?.toFixed(2) || '') : '',
+    t.type === 'income' ? (t.yoursAmt?.toFixed(2) || '') : '',
+    t.type === 'expense' ? (t.bucket || '') : '',
+    t.note || '',
+  ].map(v => `"${v}"`).join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `income-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
