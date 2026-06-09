@@ -261,8 +261,8 @@ h2.section-title em { font-style: italic; color: var(--sage); }
 }
 
 /* ── THE PROBLEM ── */
-.problem-section { background: var(--bg); }
-
+.tools-section { background: var(--bg); }
+.problem-section { background: var(--bg-soft); }
 .problem-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -541,38 +541,6 @@ footer {
   </div>
 </section>
 
-<!-- THE PROBLEM -->
-<section class="problem-section" id="problem">
-  <div class="section-inner">
-    <span class="section-tag reveal">the problem</span>
-    <h2 class="section-title reveal">traditional productivity <em>fails ADHD brains</em></h2>
-    <p class="section-sub reveal">it's not a willpower problem. it's a systems problem. here's what actually gets in the way.</p>
-
-    <div class="problem-grid">
-      <div class="problem-card reveal">
-        <span class="problem-icon">🌀</span>
-        <div class="problem-title">decision paralysis every morning</div>
-        <div class="problem-desc">waking up and not knowing what to do first uses up your best mental energy before the day even starts.</div>
-      </div>
-      <div class="problem-card reveal">
-        <span class="problem-icon">⏱</span>
-        <div class="problem-title">time blindness</div>
-        <div class="problem-desc">everything always takes longer than you think. not because you're bad at planning — because ADHD distorts time perception.</div>
-      </div>
-      <div class="problem-card reveal">
-        <span class="problem-icon">🧱</span>
-        <div class="problem-title">task initiation paralysis</div>
-        <div class="problem-desc">knowing what to do and being able to start it are two completely different problems. most tools only solve the first one.</div>
-      </div>
-      <div class="problem-card reveal">
-        <span class="problem-icon">📋</span>
-        <div class="problem-title">systems that punish inconsistency</div>
-        <div class="problem-desc">you miss a day and the whole system falls apart. ADHD brains need tools that work even when you disappear for a week.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- TOOLS -->
 <section class="tools-section" id="tools">
   <div class="section-inner">
@@ -582,11 +550,11 @@ footer {
 
     <div class="tools-grid">
 
-      <a href="./planner.html" class="tool-card available reveal">
+      <a href="./planner.html" class="tool-card available reveal" style="border-color: var(--sage-border); box-shadow: 0 0 0 2px var(--sage-light), var(--shadow);">
         <span class="tool-emoji">📅</span>
         <div class="tool-name">Weekly Focus Planner</div>
         <div class="tool-desc">answer 3 questions. get a sequenced plan for your whole week — one clear focus per day, a built-in catch-up day, and a tiny starting action for when you can't begin.</div>
-        <span class="tool-link">open tool <span class="tool-link-arrow">→</span></span>
+        <span class="tool-link" style="color: var(--sage); font-weight: 700;">start here → <span class="tool-link-arrow"></span></span>
       </a>
 
       <a href="./film-today.html" class="tool-card available reveal">
@@ -624,6 +592,38 @@ footer {
         <span class="tool-link">open tool <span class="tool-link-arrow">→</span></span>
       </a>
 
+    </div>
+  </div>
+</section>
+
+<!-- THE PROBLEM -->
+<section class="problem-section" id="problem">
+  <div class="section-inner">
+    <span class="section-tag reveal">the problem</span>
+    <h2 class="section-title reveal">traditional productivity <em>fails ADHD brains</em></h2>
+    <p class="section-sub reveal">it's not a willpower problem. it's a systems problem. here's what actually gets in the way.</p>
+
+    <div class="problem-grid">
+      <div class="problem-card reveal">
+        <span class="problem-icon">🌀</span>
+        <div class="problem-title">decision paralysis every morning</div>
+        <div class="problem-desc">waking up and not knowing what to do first uses up your best mental energy before the day even starts.</div>
+      </div>
+      <div class="problem-card reveal">
+        <span class="problem-icon">⏱</span>
+        <div class="problem-title">time blindness</div>
+        <div class="problem-desc">everything always takes longer than you think. not because you're bad at planning — because ADHD distorts time perception.</div>
+      </div>
+      <div class="problem-card reveal">
+        <span class="problem-icon">🧱</span>
+        <div class="problem-title">task initiation paralysis</div>
+        <div class="problem-desc">knowing what to do and being able to start it are two completely different problems. most tools only solve the first one.</div>
+      </div>
+      <div class="problem-card reveal">
+        <span class="problem-icon">📋</span>
+        <div class="problem-title">systems that punish inconsistency</div>
+        <div class="problem-desc">you miss a day and the whole system falls apart. ADHD brains need tools that work even when you disappear for a week.</div>
+      </div>
     </div>
   </div>
 </section>
