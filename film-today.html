@@ -391,7 +391,7 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
     <div class="field">
       <span class="field-label">anything else that should shape your content ideas?</span>
       <span class="field-hint">be specific about your actual story — not just what you do but where you are in the journey, what's true about your life right now, and what you want people to understand about you. the more accurate this is, the less Claude has to guess.</span>
-      <textarea id="p-extra" placeholder="e.g. recently diagnosed ADHD, intentionally building a UGC business alongside existing web design work, not starting over — adding something new. documenting the journey publicly. outdoor adventurer, surfer, bikepacker. dog named Diego." oninput="autosave()"></textarea>
+      <textarea id="p-extra" placeholder="e.g. documenting a career change, building a business in public, outdoor adventurer, recently moved to a new city, training for something, have a dog or pet that's part of your life" oninput="autosave()"></textarea>
     </div>
 
     <div class="field">
@@ -439,7 +439,7 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
   <div id="series-concept-field" style="display:none;" class="field">
     <span class="field-label">what's the series concept?</span>
     <span class="field-hint">describe the theme or format you have in mind — or leave it blank and Claude will suggest one based on your profile.</span>
-    <input type="text" id="series-concept" placeholder="e.g. a week in my life as a UGC creator, gear I use for adventure, ADHD tips for creatives..." />
+    <input type="text" id="series-concept" placeholder="e.g. a week in my life, gear I use and love, morning routines, behind the scenes of my work..." />
   </div>
 
   <div class="field">
@@ -852,7 +852,7 @@ async function generateIdea() {
     practice: 'practicing filming and finding their style'
   };
 
-  const prompt = `You are a creative content strategist helping someone with ADHD figure out what to film today.
+  const prompt = `You are a creative content strategist helping a creator figure out what to film today.
 
 THEIR PROFILE:
 Name: ${profile.name}
@@ -1003,7 +1003,7 @@ async function generateSeries() {
     practice: 'practicing filming and finding their style'
   };
 
-  const prompt = `You are a content strategy expert helping an ADHD creative build a repeatable video series.
+  const prompt = `You are a content strategy expert helping a creator build a repeatable video series.
 
 THEIR PROFILE:
 Name: ${profile.name}
@@ -1025,7 +1025,7 @@ Series concept they have in mind: ${seriesConcept || 'open to suggestions'}
 Generate a repeatable content series with 5 episode ideas. The series must:
 - Have a consistent format that works every single episode
 - Be easy to replicate on a bad brain day
-- Appeal to both brands and ADHD creators
+- Appeal to both brands and the creator's target audience
 - Work with the person's actual life and locations
 
 Return ONLY a raw JSON object:

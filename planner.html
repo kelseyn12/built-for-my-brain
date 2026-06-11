@@ -660,7 +660,7 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
     <div id="creator-fields" style="display:none;">
       <div class="field">
         <span class="field-label">how long does filming actually take?</span>
-        <span class="field-hint">include setup, the filming itself, and packing up. be honest — ADHD time blindness means it's always longer than you think.</span>
+        <span class="field-hint">include setup, the filming itself, and packing up. be honest — it always takes longer than you think.</span>
         <div class="chips">
           <div class="chip" data-group="filmtime" onclick="pickChip(this)">1–2 hours</div>
           <div class="chip" data-group="filmtime" onclick="pickChip(this)">half a day</div>
@@ -720,7 +720,7 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
     </div>
     <div class="field">
       <span class="field-label">anything else the plan should know?</span>
-      <span class="field-hint">caregiving days, health stuff, ADHD patterns, anything that affects your week.</span>
+      <span class="field-hint">caregiving days, health stuff, energy patterns, anything that affects your week.</span>
       <input type="text" id="p-extra" placeholder="e.g. I care for my dad some days, afternoon energy crashes" oninput="autosaveSetup()" />
     </div>
     <button class="btn" onclick="saveProfile()">save my profile ✦</button>
@@ -970,7 +970,7 @@ function pickCreator(el) {
 
 function addBucket() {
   const list = document.getElementById('setup-buckets');
-  if (list.children.length >= 5) { alert('5 buckets max — fewer is genuinely better for ADHD'); return; }
+  if (list.children.length >= 5) { alert('5 buckets max — fewer is genuinely better for focus'); return; }
   const div = document.createElement('div');
   div.className = 'bucket-block';
   div.innerHTML = `
@@ -1249,7 +1249,7 @@ async function buildWeek() {
     return d + ': commitment (' + (c.label || 'unspecified') + ')';
   }).join(', ');
 
-  const prompt = `You are a compassionate ADHD productivity coach. Build a weekly plan.
+  const prompt = `You are a compassionate productivity coach who understands how different brains work. Build a weekly plan.
 
 PROFILE:
 Name: ${profile.name}
@@ -1462,7 +1462,7 @@ function renderWeek(plan, weekDates, todayIdx, isMidWeek) {
 
   const tips = {
     low: `<strong>low energy:</strong> lower the bar. first does not mean finishing — it means opening the doc, sending one email, filming one clip. start tiny. momentum follows.`,
-    medium: `<strong>ADHD tip:</strong> read only the first task. do that one thing. close everything else. the rest follows naturally.`,
+    medium: `<strong>tip:</strong> read only the first task. do that one thing. close everything else. the rest follows naturally.`,
     high: `<strong>high energy:</strong> batch your hardest work in the morning. do not let the first hour get eaten by scrolling or emails.`
   };
   document.getElementById('tip-box').innerHTML = `<span class="tip-title">this week</span><p>${tips[weekState.energy]}</p>`;
@@ -1489,7 +1489,7 @@ async function getStuckHelp(btn, firstTask, microStart) {
         max_tokens: 200,
         messages: [{
           role: 'user',
-          content: `An ADHD person cannot start this task: "${firstTask}". The micro start was: "${microStart}". They are still stuck. Give them ONE single action so tiny it takes under 2 minutes and requires almost no executive function to begin. Be specific. Under 60 words. No preamble, just the action.`
+          content: `The person cannot start this task: "${firstTask}". The micro start was: "${microStart}". They are still stuck. Give them ONE single action so tiny it takes under 2 minutes and requires almost no executive function to begin. Be specific. Under 60 words. No preamble, just the action.`
         }]
       })
     });

@@ -551,7 +551,7 @@ async function analyzeAndGenerate() {
   const creatorCtx = document.getElementById('ctx-creator')?.value.trim() || savedContext.creator || '';
   const audienceCtx = document.getElementById('ctx-audience')?.value.trim() || savedContext.audience || '';
 
-  const analyzePrompt = `You are a UGC and content script expert. Analyze this brain dump and suggest the best script type.
+  const analyzePrompt = `You are a content and script expert. Analyze this brain dump and suggest the best script type.
 
 BRAIN DUMP:
 ${dump}
@@ -632,7 +632,7 @@ async function generateScript() {
   const creatorCtx = savedContext.creator || '';
   const audienceCtx = savedContext.audience || '';
 
-  const scriptPrompt = `You are an expert UGC and content script writer. Turn this brain dump into a polished script.
+  const scriptPrompt = `You are an expert content and script writer. Turn this brain dump into a polished script.
 
 BRAIN DUMP:
 ${currentDump}
