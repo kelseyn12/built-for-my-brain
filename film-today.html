@@ -418,6 +418,30 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
     <span class="profile-edit" onclick="showSetup()">edit profile</span>
   </div>
 
+  <!-- MODE TOGGLE -->
+  <div class="field">
+    <span class="field-label">what do you need today?</span>
+    <div style="display:flex;gap:8px;">
+      <div class="chip on" id="mode-oneoff" data-mode="oneoff" onclick="pickMode(this)" style="flex:1;text-align:center;padding:12px;">
+        <div style="font-size:18px;margin-bottom:3px;">🎯</div>
+        <div style="font-weight:600;font-size:13px;">one idea</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">I'm stuck, just give me something to film</div>
+      </div>
+      <div class="chip" id="mode-series" data-mode="series" onclick="pickMode(this)" style="flex:1;text-align:center;padding:12px;">
+        <div style="font-size:18px;margin-bottom:3px;">📺</div>
+        <div style="font-weight:600;font-size:13px;">a series</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">I want a repeatable format that builds over time</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERIES CONCEPT (only shown in series mode) -->
+  <div id="series-concept-field" style="display:none;" class="field">
+    <span class="field-label">what's the series concept?</span>
+    <span class="field-hint">describe the theme or format you have in mind — or leave it blank and Claude will suggest one based on your profile.</span>
+    <input type="text" id="series-concept" placeholder="e.g. a week in my life as a UGC creator, gear I use for adventure, ADHD tips for creatives..." />
+  </div>
+
   <div class="field">
     <span class="field-label">how's your energy right now?</span>
     <div class="energy-row">
@@ -451,7 +475,7 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
     <div class="chips" id="location-chips"></div>
   </div>
 
-  <button class="btn" onclick="generateIdea()">show me what to film ✦</button>
+  <button class="btn" id="generate-btn" onclick="generateIdea()">show me what to film ✦</button>
 </div>
 
 <!-- ══════════════════════════════════ -->
@@ -524,7 +548,56 @@ textarea { min-height: 68px; resize: vertical; line-height: 1.55; }
   <span style="color:var(--text-faint);">your profile is saved in this browser. use the same browser and device to keep it.</span></p>
 </div>
 
-</div><!-- /container -->
+<!-- ══════════════════════════════════ -->
+<!--  SERIES RESULT SCREEN             -->
+<!-- ══════════════════════════════════ -->
+<div class="screen" id="screen-series">
+  <div class="brand">Built for My Brain</div>
+  <h1>your <em>series</em></h1>
+
+  <div class="result-card" id="series-card">
+    <div class="result-header">
+      <span class="result-pillar" id="s-name"></span>
+      <span class="result-format" id="s-episodes"></span>
+    </div>
+    <div class="result-body">
+      <div class="result-section">
+        <span class="result-section-label">the concept</span>
+        <div class="result-idea" id="s-concept"></div>
+      </div>
+      <div class="result-section">
+        <span class="result-section-label">why this builds an audience</span>
+        <div class="result-section-text" id="s-why"></div>
+      </div>
+      <div class="result-section">
+        <span class="result-section-label">repeatable format — use this every episode</span>
+        <div class="result-section-text" id="s-format" style="font-weight:500;color:var(--text);"></div>
+      </div>
+      <div class="result-section">
+        <span class="result-section-label">episode ideas — matched to your energy today</span>
+        <div id="s-episodes-list"></div>
+      </div>
+      <div class="result-tags" id="s-tags"></div>
+    </div>
+    <div class="result-footer">
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="generateIdea()">generate new series</button>
+        <button class="btn btn-sm" onclick="copySeries()">copy series plan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="btn-row">
+    <button class="btn btn-ghost btn-sm" onclick="show('screen-generate')">change my answers</button>
+  </div>
+
+  <p class="footer">Built for My Brain — free tools for ADHD creatives.<br>
+  made by <a href="https://kelseynocek.com">Kelsey Nocek</a> ·
+  <span class="profile-edit" onclick="showSetup()" style="cursor:pointer;">edit profile</span> ·
+  <span class="profile-edit" onclick="changeApiKey()" style="cursor:pointer;">change API key</span><br>
+  <span style="color:var(--text-faint);">your profile is saved in this browser. use the same browser and device to keep it.</span></p>
+</div>
 <script>
 const PROFILE_KEY = 'bfmb_film_profile_v1';
 const DRAFT_KEY = 'bfmb_film_draft_v1';
@@ -760,6 +833,7 @@ function showSetup() {
 
 async function generateIdea() {
   if (!genState.energy) { alert('pick your energy level first'); return; }
+  if (currentMode === 'series') { generateSeries(); return; }
 
   const time = document.querySelector('[data-group="time"].on')?.textContent || 'some time';
   const location = genState.location || (profile.locations?.[0]) || 'home';
@@ -888,6 +962,181 @@ function copyIdea() {
     const btn = event.target;
     btn.textContent = 'copied!';
     setTimeout(() => btn.textContent = 'copy idea + hook', 1500);
+  });
+}
+
+// ── MODE TOGGLE ───────────────────────────────────────────────────────────────
+let currentMode = 'oneoff';
+
+function pickMode(el) {
+  document.querySelectorAll('[data-mode]').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  currentMode = el.dataset.mode;
+  const seriesField = document.getElementById('series-concept-field');
+  const btn = document.getElementById('generate-btn');
+  if (currentMode === 'series') {
+    seriesField.style.display = 'block';
+    btn.textContent = 'build my series ✦';
+  } else {
+    seriesField.style.display = 'none';
+    btn.textContent = 'show me what to film ✦';
+  }
+}
+
+// ── GENERATE SERIES ───────────────────────────────────────────────────────────
+async function generateSeries() {
+  const time = document.querySelector('[data-group="time"].on')?.textContent || 'some time';
+  const location = genState.location || (profile.locations?.[0]) || 'home';
+  const seriesConcept = document.getElementById('series-concept')?.value.trim() || '';
+
+  show('screen-loading');
+  const msgs = ['building your series...', 'thinking about what works long term...', 'mapping out episodes...', 'almost there...'];
+  let mi = 0;
+  const interval = setInterval(() => {
+    document.getElementById('loading-msg').textContent = msgs[mi++ % msgs.length];
+  }, 1500);
+
+  const goalDescriptions = {
+    portfolio: 'building a UGC portfolio to pitch to brands',
+    brand: 'growing a personal brand and audience',
+    journey: 'documenting their creative journey in public',
+    practice: 'practicing filming and finding their style'
+  };
+
+  const prompt = `You are a content strategy expert helping an ADHD creative build a repeatable video series.
+
+THEIR PROFILE:
+Name: ${profile.name}
+Content goal: ${goalDescriptions[profile.goal] || profile.goal}
+Niche / focus: ${profile.niche || 'not specified'}
+Creative work: ${profile.work?.join(', ') || 'not specified'}${profile.workOther ? ', ' + profile.workOther : ''}
+Gear and products they love: ${profile.gear || 'not specified'}
+Usually films at: ${profile.locations?.join(', ') || 'various places'}
+Pet: ${profile.hasPet ? profile.petName || 'yes' : 'no'}
+Extra context: ${profile.extra || 'none'}
+Dream brands / targets: ${profile.brands || 'none specified'}
+
+TODAY:
+Energy level: ${genState.energy}
+Time available per episode: ${time}
+Where they usually film: ${location}
+Series concept they have in mind: ${seriesConcept || 'open to suggestions'}
+
+Generate a repeatable content series with 5 episode ideas. The series must:
+- Have a consistent format that works every single episode
+- Be easy to replicate on a bad brain day
+- Appeal to both brands and ADHD creators
+- Work with the person's actual life and locations
+
+Return ONLY a raw JSON object:
+{
+  "seriesName": "the series name — short and memorable",
+  "concept": "one sentence describing the series format",
+  "why": "one sentence on why this series builds an audience and attracts brands",
+  "format": "the repeatable structure used every episode e.g. problem → solution → result or day in life → one thing I use → why it helps",
+  "episodes": [
+    {"num": 1, "title": "episode title", "hook": "opening hook for this episode", "energy": "low/medium/high"},
+    {"num": 2, "title": "episode title", "hook": "opening hook for this episode", "energy": "low/medium/high"},
+    {"num": 3, "title": "episode title", "hook": "opening hook for this episode", "energy": "low/medium/high"},
+    {"num": 4, "title": "episode title", "hook": "opening hook for this episode", "energy": "low/medium/high"},
+    {"num": 5, "title": "episode title", "hook": "opening hook for this episode", "energy": "low/medium/high"}
+  ],
+  "hashtags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+}
+
+Mark each episode with the energy level it requires. Match episode 1 to their current energy: ${genState.energy}.
+Keep all strings under 120 chars. No markdown, no explanation, raw JSON only.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': userApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    clearInterval(interval);
+
+    let raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const start = raw.indexOf('{'); const end = raw.lastIndexOf('}');
+    if (start === -1 || end === -1) throw new Error('no JSON');
+    raw = raw.slice(start, end + 1);
+
+    let series;
+    try { series = JSON.parse(raw); }
+    catch {
+      raw = raw.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+      series = JSON.parse(raw);
+    }
+
+    renderSeries(series);
+  } catch(err) {
+    clearInterval(interval);
+    console.error(err);
+    document.getElementById('loading-msg').innerHTML = 'something went wrong. <button onclick="generateIdea()" style="margin-top:12px;display:block;padding:10px 20px;border-radius:8px;border:none;background:var(--sage);color:white;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif;">try again</button>';
+  }
+}
+
+function renderSeries(series) {
+  document.getElementById('s-name').textContent = series.seriesName || '';
+  document.getElementById('s-episodes').textContent = '5 episodes';
+  document.getElementById('s-concept').textContent = series.concept || '';
+  document.getElementById('s-why').textContent = series.why || '';
+  document.getElementById('s-format').textContent = '▸ ' + (series.format || '');
+
+  const energyIcons = { low: '🪫', medium: '⚡', high: '🔥' };
+  const list = document.getElementById('s-episodes-list');
+  list.innerHTML = '';
+  (series.episodes || []).forEach(ep => {
+    const item = document.createElement('div');
+    item.style.cssText = 'padding:10px 0;border-bottom:1px solid var(--border);';
+    item.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+        <span style="font-size:11px;font-weight:700;color:var(--text-faint);">EP ${ep.num}</span>
+        <span style="font-size:13px;font-weight:600;color:var(--text);flex:1;">${ep.title}</span>
+        <span style="font-size:14px;">${energyIcons[ep.energy] || '⚡'}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);font-style:italic;">"${ep.hook}"</div>
+    `;
+    list.appendChild(item);
+  });
+
+  const tags = document.getElementById('s-tags');
+  tags.innerHTML = '';
+  (series.hashtags || []).forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'result-tag';
+    span.textContent = t.startsWith('#') ? t : '#' + t;
+    tags.appendChild(span);
+  });
+
+  show('screen-series');
+}
+
+function copySeries() {
+  const name = document.getElementById('s-name').textContent;
+  const concept = document.getElementById('s-concept').textContent;
+  const format = document.getElementById('s-format').textContent;
+  const episodes = [...document.querySelectorAll('#s-episodes-list > div')].map(el => {
+    const ep = el.querySelector('span:nth-child(2)')?.textContent || '';
+    const hook = el.querySelector('div:last-child')?.textContent || '';
+    return ep + '\n' + hook;
+  }).join('\n\n');
+  const tags = [...document.querySelectorAll('#s-tags .result-tag')].map(t => t.textContent).join(' ');
+  const text = `Series: ${name}\n\nConcept: ${concept}\n\nFormat: ${format}\n\nEpisodes:\n\n${episodes}\n\n${tags}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy series plan', 1500);
   });
 }
 </script>
