@@ -305,12 +305,13 @@ select { cursor: pointer; -webkit-appearance: none; }
     <span class="goal-sub" id="goal-sub">keep going — every pitch counts</span>
     <span class="goal-edit" onclick="openGoalModal()">change goal</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
     <span style="font-size:12px;color:var(--text-muted);">quick log:</span>
     <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(1)">+1</button>
     <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(5)">+5</button>
     <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(10)">+10</button>
     <span style="font-size:11px;color:var(--text-faint);">fill in details later with + add pitch</span>
+    <span class="goal-edit" style="margin-left:auto;" onclick="resetTodayCount()">reset today</span>
   </div>
 </div>
 
@@ -454,11 +455,18 @@ function load() {
 
     // Today count — reset daily
     const td = localStorage.getItem(TODAY_KEY);
+    const today = new Date().toDateString();
     if (td) {
       const d = JSON.parse(td);
-      const today = new Date().toDateString();
-      if (d.date === today) todayCount = d.count;
-      else { todayCount = 0; saveTodayCount(); }
+      if (d.date === today) {
+        todayCount = d.count;
+      } else {
+        todayCount = 0;
+        saveTodayCount();
+      }
+    } else {
+      todayCount = 0;
+      saveTodayCount();
     }
   } catch(e) {}
 }
@@ -772,6 +780,13 @@ function saveGoal() {
 }
 
 // ── QUICK LOG ─────────────────────────────────────────────────────────────────
+function resetTodayCount() {
+  if (!confirm('reset today\'s count to 0?')) return;
+  todayCount = 0;
+  saveTodayCount();
+  renderGoalBar();
+}
+
 function quickLog(n) {
   todayCount += n;
   saveTodayCount();
