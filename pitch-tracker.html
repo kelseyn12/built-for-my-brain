@@ -549,14 +549,81 @@ function isStale(pitch) {
   return ['sent','followed'].includes(pitch.status) && days >= 7;
 }
 
+// Only show follow-ups for non-Bento methods
+function needsFollowUp(pitch) {
+  return pitch.method && pitch.method !== 'Bento VA' &&
+    ['sent','followed'].includes(pitch.status);
+}
+
+function getFollowUps(pitch) {
+  if (!needsFollowUp(pitch)) return [];
+  const created = new Date(pitch.createdAt).getTime();
+  const now = Date.now();
+  const daysSinceCreated = Math.floor((now - created) / (1000 * 60 * 60 * 24));
+
+  const followUps = [
+    { day: 7,  label: 'Day 7',  action: 'send a DM — quick friendly bump', icon: '💬' },
+    { day: 14, label: 'Day 14', action: 'send a voice note — personal, under 30 seconds', icon: '🎤' },
+    { day: 21, label: 'Day 21', action: 'send a final DM — last call, move on after this', icon: '🏁' },
+  ];
+
+  return followUps.map(f => {
+    const dueDate = new Date(created + f.day * 24 * 60 * 60 * 1000);
+    const daysUntil = Math.ceil((dueDate.getTime() - now) / (1000 * 60 * 60 * 24));
+    const isOverdue = daysUntil < 0;
+    const isDueToday = daysUntil === 0;
+    const isDueSoon = daysUntil > 0 && daysUntil <= 2;
+    const isDone = daysSinceCreated > f.day + 6; // assume done if past window
+
+    return {
+      ...f,
+      dueDate,
+      daysUntil,
+      isOverdue,
+      isDueToday,
+      isDueSoon,
+      isDone,
+      dateStr: dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    };
+  }).filter(f => !f.isDone);
+}
+
 function makePitchCard(pitch, inKanban = false) {
   const si = getStatusInfo(pitch.status);
   const stale = isStale(pitch);
   const days = daysSince(pitch.updatedAt || pitch.createdAt);
+  const followUps = getFollowUps(pitch);
 
   const card = document.createElement('div');
   card.className = `pitch-card ${stale ? 'stale' : ''} ${pitch.status === 'won' ? 'won' : ''} ${pitch.status === 'passed' ? 'passed' : ''}`;
   card.onclick = () => openEditModal(pitch.id);
+
+  // Build follow-up reminders HTML
+  let followUpHTML = '';
+  if (followUps.length > 0) {
+    followUpHTML = `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px;">`;
+    followUps.forEach(f => {
+      const color = f.isOverdue ? '#c0392b' : f.isDueToday || f.isDueSoon ? 'var(--amber)' : 'var(--text-faint)';
+      const bg = f.isOverdue ? 'rgba(192,57,43,0.07)' : f.isDueToday ? 'var(--amber-light)' : 'transparent';
+      const label = f.isOverdue
+        ? `overdue ${Math.abs(f.daysUntil)}d`
+        : f.isDueToday ? 'today'
+        : f.isDueSoon ? `in ${f.daysUntil}d`
+        : f.dateStr;
+      followUpHTML += `
+        <div style="display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;background:${bg};">
+          <span style="font-size:12px;">${f.icon}</span>
+          <span style="font-size:11px;color:${f.isOverdue || f.isDueToday ? 'var(--amber)' : 'var(--text-faint)'};flex:1;">
+            ${f.action}
+          </span>
+          <span style="font-size:10px;font-weight:600;color:${f.isOverdue ? 'var(--red)' : f.isDueToday || f.isDueSoon ? 'var(--amber)' : 'var(--text-faint)'};white-space:nowrap;">
+            ${label}
+          </span>
+        </div>
+      `;
+    });
+    followUpHTML += `</div>`;
+  }
 
   card.innerHTML = `
     <div class="pitch-card-top">
@@ -570,6 +637,7 @@ function makePitchCard(pitch, inKanban = false) {
       ${stale ? `<span class="pitch-stale-flag">⏰ follow up</span>` : ''}
     </div>
     ${pitch.notes ? `<div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.4;">${pitch.notes.slice(0,80)}${pitch.notes.length > 80 ? '...' : ''}</div>` : ''}
+    ${followUpHTML}
   `;
   return card;
 }
