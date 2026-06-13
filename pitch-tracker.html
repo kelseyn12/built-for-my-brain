@@ -566,7 +566,7 @@ function makePitchCard(pitch, inKanban = false) {
     <div class="pitch-card-meta">
       ${pitch.niche ? `<span class="pitch-niche">${pitch.niche}</span>` : ''}
       ${pitch.method ? `<span class="pitch-meta-item">via ${pitch.method}</span>` : ''}
-      <span class="pitch-meta-item">${days === 0 ? 'today' : days + 'd ago'}</span>
+      <span class="pitch-meta-item">${new Date(pitch.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ${days === 0 ? 'today' : days === 1 ? 'yesterday' : days + 'd ago'}</span>
       ${stale ? `<span class="pitch-stale-flag">⏰ follow up</span>` : ''}
     </div>
     ${pitch.notes ? `<div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.4;">${pitch.notes.slice(0,80)}${pitch.notes.length > 80 ? '...' : ''}</div>` : ''}
