@@ -294,6 +294,14 @@ select { cursor: pointer; -webkit-appearance: none; }
   </div>
 </div>
 
+<!-- EXPORT NUDGE -->
+<div id="export-nudge" style="display:none;background:var(--sage-light);border:1px solid var(--sage-border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:1.25rem;display:none;align-items:center;gap:10px;">
+  <span style="font-size:18px;">💾</span>
+  <span style="font-size:13px;color:var(--sage-mid);flex:1;">it's been a while since you backed up your pitches. one tap exports everything to CSV.</span>
+  <button class="btn" style="margin-top:0;padding:6px 14px;font-size:12px;width:auto;" onclick="exportCSV()">export now</button>
+  <button onclick="dismissExportNudge()" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:18px;padding:0;line-height:1;">×</button>
+</div>
+
 <!-- GOAL BAR -->
 <div class="goal-bar">
   <div class="goal-bar-top">
@@ -421,6 +429,7 @@ made by <a href="https://kelseynocek.com">Kelsey Nocek</a><br>
 const PITCHES_KEY = 'bfmb_pitches_v1';
 const GOAL_KEY = 'bfmb_pitch_goal_v1';
 const TODAY_KEY = 'bfmb_pitch_today_v1';
+const LAST_EXPORT_KEY = 'bfmb_last_export_v1';
 
 let pitches = [];
 let dailyGoal = 25;
@@ -486,6 +495,7 @@ function render() {
   renderStats();
   renderGoalBar();
   renderFollowupAlert();
+  checkExportNudge();
   if (currentView === 'kanban') renderKanban();
   else renderList();
 }
@@ -872,9 +882,44 @@ function quickLog(n) {
   }, 600);
 }
 
+// ── EXPORT NUDGE ──────────────────────────────────────────────────────────────
+function checkExportNudge() {
+  if (pitches.length === 0) return;
+  try {
+    const last = localStorage.getItem(LAST_EXPORT_KEY);
+    if (!last) {
+      // Never exported and has pitches — show after 3 days
+      const oldest = pitches.reduce((min, p) => {
+        const d = new Date(p.createdAt).getTime();
+        return d < min ? d : min;
+      }, Date.now());
+      const daysSinceFirst = Math.floor((Date.now() - oldest) / (1000 * 60 * 60 * 24));
+      if (daysSinceFirst >= 3) showExportNudge();
+    } else {
+      const daysSinceExport = Math.floor((Date.now() - parseInt(last)) / (1000 * 60 * 60 * 24));
+      if (daysSinceExport >= 7) showExportNudge();
+    }
+  } catch(e) {}
+}
+
+function showExportNudge() {
+  const nudge = document.getElementById('export-nudge');
+  if (nudge) nudge.style.display = 'flex';
+}
+
+function dismissExportNudge() {
+  const nudge = document.getElementById('export-nudge');
+  if (nudge) nudge.style.display = 'none';
+  // Snooze for 3 days
+  try { localStorage.setItem(LAST_EXPORT_KEY, (Date.now() - 4 * 24 * 60 * 60 * 1000).toString()); } catch(e) {}
+}
+
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 function exportCSV() {
   if (pitches.length === 0) { alert('no pitches to export yet'); return; }
+  try { localStorage.setItem(LAST_EXPORT_KEY, Date.now().toString()); } catch(e) {}
+  const nudge = document.getElementById('export-nudge');
+  if (nudge) nudge.style.display = 'none';
 
   const headers = ['Brand', 'Niche', 'Method', 'What Pitched', 'Status', 'Notes', 'Date Sent', 'Last Updated'];
   const rows = pitches.map(p => [
