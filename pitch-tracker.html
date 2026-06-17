@@ -315,10 +315,11 @@ select { cursor: pointer; -webkit-appearance: none; }
   </div>
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
     <span style="font-size:12px;color:var(--text-muted);">quick log:</span>
-    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(1)">+1</button>
-    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(5)">+5</button>
-    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="quickLog(10)">+10</button>
-    <span style="font-size:11px;color:var(--text-faint);">fill in details later with + add pitch</span>
+    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="openQuickLogModal(1)">+1</button>
+    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="openQuickLogModal(5)">+5</button>
+    <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px;" onclick="openQuickLogModal(10)">+10</button>
+    <span style="font-size:11px;color:var(--text-faint);">just brand names — quick batch logging</span>
+    <span id="quicklog-pending" style="display:none;font-size:11px;color:var(--amber);font-weight:600;"></span>
     <span class="goal-edit" style="margin-left:auto;" onclick="resetTodayCount()">reset today</span>
   </div>
 </div>
@@ -425,6 +426,17 @@ made by <a href="https://kelseynocek.com">Kelsey Nocek</a><br>
   </div>
 </div>
 
+<!-- QUICK LOG MODAL -->
+<div class="modal-overlay" id="quicklog-modal" style="display:none;" onclick="closeQuickLogModalOutside(event)">
+  <div class="modal" style="max-height:75vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">quick log <em id="quicklog-count-label"></em></div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">just the brand names — add the rest later if you want. leave any blank and it'll save as "untitled."</p>
+    <div id="quicklog-fields" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <button class="btn" onclick="confirmQuickLog()" style="margin-top:1rem;">log them ✓</button>
+  </div>
+</div>
+
 <script>
 const PITCHES_KEY = 'bfmb_pitches_v1';
 const GOAL_KEY = 'bfmb_pitch_goal_v1';
@@ -496,8 +508,21 @@ function render() {
   renderGoalBar();
   renderFollowupAlert();
   checkExportNudge();
+  renderQuickLogPending();
   if (currentView === 'kanban') renderKanban();
   else renderList();
+}
+
+function renderQuickLogPending() {
+  const pending = pitches.filter(p => p.isQuickLog && !p.brand).length;
+  const el = document.getElementById('quicklog-pending');
+  if (!el) return;
+  if (pending > 0) {
+    el.textContent = `⚡ ${pending} quick-logged — need details`;
+    el.style.display = 'inline';
+  } else {
+    el.style.display = 'none';
+  }
 }
 
 function renderStats() {
@@ -561,6 +586,7 @@ function isStale(pitch) {
 
 // Only show follow-ups for non-Bento methods
 function needsFollowUp(pitch) {
+  if (pitch.isQuickLog && !pitch.brand) return false; // not filled in yet
   return pitch.method && pitch.method !== 'Bento VA' &&
     ['sent','followed'].includes(pitch.status);
 }
@@ -637,9 +663,10 @@ function makePitchCard(pitch, inKanban = false) {
 
   card.innerHTML = `
     <div class="pitch-card-top">
-      <div class="pitch-brand">${pitch.brand}</div>
+      <div class="pitch-brand">${pitch.brand || '<span style="color:var(--text-faint);font-style:italic;">untitled — tap to add details</span>'}</div>
       <span class="pitch-status-badge ${si.cls}">${si.label}</span>
     </div>
+    ${pitch.isQuickLog && !pitch.brand ? `<div style="font-size:11px;color:var(--amber);background:var(--amber-light);border-radius:4px;padding:3px 8px;display:inline-block;margin-top:4px;">⚡ quick logged — fill in details when you can</div>` : ''}
     <div class="pitch-card-meta">
       ${pitch.niche ? `<span class="pitch-niche">${pitch.niche}</span>` : ''}
       ${pitch.method ? `<span class="pitch-meta-item">via ${pitch.method}</span>` : ''}
@@ -802,6 +829,7 @@ function savePitch() {
         status: selectedStatus,
         notes: document.getElementById('m-notes').value.trim(),
         updatedAt: now,
+        isQuickLog: false,
       };
     }
   } else {
@@ -865,21 +893,55 @@ function resetTodayCount() {
   renderGoalBar();
 }
 
-function quickLog(n) {
-  todayCount += n;
+function openQuickLogModal(n) {
+  document.getElementById('quicklog-count-label').textContent = `${n} pitch${n > 1 ? 'es' : ''}`;
+  const fields = document.getElementById('quicklog-fields');
+  fields.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = `brand ${i + 1}${n > 1 ? ' (or leave blank)' : ''}`;
+    input.id = `ql-field-${i}`;
+    input.style.width = '100%';
+    fields.appendChild(input);
+  }
+  document.getElementById('quicklog-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('ql-field-0')?.focus(), 100);
+}
+
+function closeQuickLogModalOutside(e) {
+  if (e.target === document.getElementById('quicklog-modal')) {
+    document.getElementById('quicklog-modal').style.display = 'none';
+  }
+}
+
+function confirmQuickLog() {
+  const fields = document.querySelectorAll('#quicklog-fields input');
+  const now = new Date().toISOString();
+  let count = 0;
+
+  fields.forEach((input, i) => {
+    const brand = input.value.trim();
+    pitches.unshift({
+      id: Date.now().toString() + '-' + i,
+      brand: brand,
+      niche: '',
+      method: '',
+      what: '',
+      status: 'sent',
+      notes: '',
+      createdAt: now,
+      updatedAt: now,
+      isQuickLog: !brand,
+    });
+    count++;
+  });
+
+  save();
+  todayCount += count;
   saveTodayCount();
-  renderGoalBar();
-  // Brief visual feedback
-  const btn = event.target;
-  const orig = btn.textContent;
-  btn.textContent = '✓';
-  btn.style.color = 'var(--sage)';
-  btn.style.borderColor = 'var(--sage-border)';
-  setTimeout(() => {
-    btn.textContent = orig;
-    btn.style.color = '';
-    btn.style.borderColor = '';
-  }, 600);
+  document.getElementById('quicklog-modal').style.display = 'none';
+  render();
 }
 
 // ── EXPORT NUDGE ──────────────────────────────────────────────────────────────
