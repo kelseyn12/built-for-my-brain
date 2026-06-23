@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://builtformybrain.com/sitemap.xml
